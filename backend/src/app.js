@@ -2,6 +2,7 @@ import express from "express";
 const app = express();
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import globalErrorHandler from "./middlewares/globalErrorHandler.middleware";
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
@@ -17,4 +18,5 @@ app.get("/", (req, res)=>{
     res.send("API IS RUNNING");
 });
 
+app.use(globalErrorHandler);
 export {app}
