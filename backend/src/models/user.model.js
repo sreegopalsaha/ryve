@@ -42,22 +42,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "Feeling New"
     },
-    posts: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Post"
-    }],
-    followers: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        }
-    ],
-    followings: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        }
-    ],
     refreshToken: {
         type: String
     }
@@ -103,4 +87,4 @@ userSchema.methods.generateRefreshToken = function(){
     }
 )};
 
-export default mongoose.model('User', userSchema);
+export const User = mongoose.model('User', userSchema);

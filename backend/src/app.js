@@ -3,6 +3,7 @@ const app = express();
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import globalErrorHandler from "./middlewares/globalErrorHandler.middleware.js";
+import userRouter from "./routes/user.router.js";
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
@@ -17,6 +18,8 @@ app.use(express.static("public"));
 app.get("/", (req, res)=>{
     res.send("API IS RUNNING");
 });
+
+app.use("/api/v1/user", userRouter);
 
 app.use(globalErrorHandler);
 export {app}

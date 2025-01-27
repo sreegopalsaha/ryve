@@ -3,7 +3,7 @@ import {ApiError} from "../utils/ApiError.js";
 const globalErrorHandler = (err, req, res, next) => {
     if (err instanceof ApiError) {
         return res.status(err.statusCode).json({
-            status: statusCode,
+            status: err.statusCode,
             message: err.message,
             success: err.success,
             errors: err.errors,

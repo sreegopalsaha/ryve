@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { ApiError } from '../utils/ApiError';
-import asyncHandler from '..utils/asyncHandler.middleware';
+import asyncHandler from '../utils/asyncHandler.js'
+import { ApiError } from '../utils/ApiError.js';
+
 
 const isLoggedIn = asyncHandler((req, res, next) => {
     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
