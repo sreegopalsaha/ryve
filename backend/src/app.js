@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import globalErrorHandler from "./middlewares/globalErrorHandler.middleware";
+import globalErrorHandler from "./middlewares/globalErrorHandler.middleware.js";
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
