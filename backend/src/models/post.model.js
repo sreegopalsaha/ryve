@@ -17,22 +17,8 @@ const postSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
-    comments: [{
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-        },
-        text: {
-            type: String,
-            trim: true
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
-    }]
-}, {
+},{
     timestamps: true 
 });
 
-export default mongoose.model('Post', postSchema);
+export const Post = mongoose.model('Post', postSchema);
