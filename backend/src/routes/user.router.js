@@ -1,19 +1,18 @@
 import express from "express";
 import isLoggedIn from "../middlewares/isLoggedIn.middleware.js";
-import { userRegister, userLoging } from "../controllers/user.controller.js";
+import { userRegister, userLoging, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 const router = express.Router();
 
-router.get("/", (req, res)=>{
-    res.send("i am working");
-});
+router.post("/register", upload.single("profilePicture"), userRegister);
+router.post("/login", userLoging);
 
-router.post("/register", upload.single("profilePic"), userRegister);
-router.post("/login", isLoggedIn, userLoging);
+router.get("getCurrentUser", isLoggedIn, getCurrentUser);
 
-// router.get("getCurrentUser", isLoggedIn, getCurrentUser);
-// router.get("/getUser/:targetUserId", isLoggedIn, getUser);
+router.get("/getUserProfile/:targetUserIdOrUsername", isLoggedIn, getUserProfile);
+router.put("/updateAccountDetails", isLoggedIn, updateAccountDetails);
+router.put("/changeCurrentPassword", isLoggedIn, changeCurrentPassword);
 
-// router.post("/followUnfollow/:targetUserId", isLoggedIn, userFollowUnfollow);
+router.post("/followUnfollow/:targetUserId", isLoggedIn, userFollowUnfollow);
 
 export default router;

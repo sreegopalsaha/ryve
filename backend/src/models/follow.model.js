@@ -12,6 +12,11 @@ const followSchema = new Schema(
             ref: "User",
             required: true,
         },
+        status: {
+            type: String,
+            enum: ["accepted", "pending"],
+            required: true,
+        }
     },
     { timestamps: true }
 );

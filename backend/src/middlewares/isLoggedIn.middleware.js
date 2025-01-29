@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import asyncHandler from '../utils/asyncHandler.js'
 import { ApiError } from '../utils/ApiError.js';
+import { compareSync } from 'bcrypt';
 
 
 const isLoggedIn = asyncHandler((req, res, next) => {
@@ -8,7 +9,7 @@ const isLoggedIn = asyncHandler((req, res, next) => {
     if (!token) {
         throw new ApiError(401, 'No token provided');
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     req.user = decoded;
     next();
 });

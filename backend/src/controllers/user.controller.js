@@ -3,6 +3,8 @@ import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { uploadOnCloudinay } from "../utils/uploadOnCloudinary.js";
+import { Follow } from "../models/follow.model.js";
+import mongoose, { isValidObjectId } from "mongoose";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -100,97 +102,116 @@ const getCurrentUser = asyncHandler(async (req, res, next) => {
 });
 
 const getUserProfile = asyncHandler(async (req, res, next) => {
-    // first find out if the same account
-    // if same then just send the account info
-    // if not same fetch target user info
-    // if target user is not private then send profile
-    // if current user is following the target user then send the profile
-    // check if follow request is already found then show pending, if not then show follow button
-    // if not all the check does not match then send error that unauthorized
+    const currentUserId = req.user._id;
+    const targetIdentifier = req.params.targetUserIdOrUsername;
 
-    const currentUserId = req.user?._id;
-    const currentUserUserName = req.user?.username;
-    const targetUserIdOrUsername = req.params.userId;
-    if (!targetUserIdOrUsername) throw new ApiError(400, "Username is required");
+    const targetUser = await User.findOne({
+        $or: [
+            { username: targetIdentifier.toLowerCase() },
+            { _id: isValidObjectId(targetIdentifier) ? targetIdentifier : null }
+        ]
+    }).select('_id').lean();
 
+    if (!targetUser) throw new ApiError(404, "User not found");
 
+    const isSameAccount = new mongoose.Types.ObjectId(currentUserId).equals(targetUser._id);
 
-    const isSameAccount = currentUserId.toString() === targetUserIdOrUsername.toString() || currentUserUserName === targetUserIdOrUsername;
+    const pipeline = [
+        { $match: { _id: targetUser._id } },
 
-    if (isSameAccount) {
-        const profile = await User.aggregate([
-            {
-                $match: {
-                    $or: [{ _id: targetUserIdOrUsername }, { username: targetUserIdOrUsername?.toLowerCase() }]
-                }
-            },
-            {
-                $lookup: {
-                    from: "follow",
-                    localField: "_id",
-                    foreignField: "following",
-                    as: "followers"
-                }
-            },
-            {
-                $lookup: {
-                    from: "follow",
-                    localField: "_id",
-                    foreignField: "follower",
-                    as: "following"
-                }
-            },
-            {
-                $addFields: {
-                    followersCound: {
-                        $size: "$followers"
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$following", "$$userId"] },
+                                    { $eq: ["$status", "accepted"] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "followers"
+            }
+        },
+
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$follower", "$$userId"] },
+                                    { $eq: ["$status", "accepted"] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "followings"
+            }
+        },
+
+        ...(!isSameAccount ? [{
+            $lookup: {
+                from: "follows",
+                let: { targetId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$follower", new mongoose.Types.ObjectId(currentUserId)] },
+                                    { $eq: ["$following", "$$targetId"] }
+                                ]
+                            }
+                        }
                     },
-                    followingCound: {
-                        $size: "$following"
-                    },
-                    isFollowing: {
-                        $cond: {
-                            if: { $in: [req.user?._id, "$followers.followers"] },
-                            then: true,
-                            else: false
+                    { $project: { status: 1 } }
+                ],
+                as: "followStatus"
+            }
+        }] : []),
+
+        {
+            $project: {
+                username: 1,
+                fullname: 1,
+                profilePicture: 1,
+                bio: 1,
+                location: 1,
+                isPrivateAccount: 1,
+                createdAt: 1,
+                totalFollowers: { $size: "$followers" },
+                totalFollowings: { $size: "$followings" },
+                followStatus: {
+                    $cond: {
+                        if: isSameAccount,
+                        then: "$$REMOVE",
+                        else: {
+                            $ifNull: [
+                                { $arrayElemAt: ["$followStatus.status", 0] },
+                                null
+                            ]
                         }
                     }
                 }
-            },
-            {
-                $project: {
-                    fullName: 1,
-                    username: 1,
-                    subscribersCount: 1,
-                    channelsSubscribedToCount: 1,
-                    isSubscribed: 1,
-                    avatar: 1,
-                    coverImage: 1,
-                    email: 1
-
-                }
             }
-        ])
+        }
+    ];
 
-        if (!profile) throw new ApiError(400, "User not found");
+    const [profile] = await User.aggregate(pipeline);
+    
+    if (!profile) throw new ApiError(404, "User not found");
 
-        res.status(200).json(new ApiResponse(200, profile, "User profile fetched successfully"));
-    }
-
-    const currentUser = await findById(currentUserId);
-    const targetUser = await find({ $or: [{ _id: targetUserIdOrUsername }, { username: targetUserIdOrUsername }] });
-
-    if (!currentUser) throw new ApiError(400, "Unauthorized access");
-    if (!targetUser) throw new ApiError(400, "Requested user not found");
-
-    const isFollowing = await Follow.findOne({ follower: currentUserId, following: targetUserIdOrUsername });
-    if (targetUser.isPrivateAcoount && !isFollowing) throw new ApiError(400, "This account is private");
-
-    return res.status(200).json(new ApiResponse(
-        200,
-        targetUser,
-        "User fetched successfully"
-    ));
+    res.status(200).json(new ApiResponse(200, profile, "Profile fetched"));
 });
 
 const updateAccountDetails = asyncHandler(async (req, res, next) => {
@@ -214,7 +235,7 @@ const updateAccountDetails = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
 });
 
-const changeCurrentPassword = asyncHandler(async (req, res) => {
+const changeCurrentPassword = asyncHandler(async (req, res, next) => {
     const { oldPassword, newPassword } = req.body
 
     const user = await User.findById(req.user?._id);
@@ -228,4 +249,32 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
-export { userRegister, userLoging, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword };
+const userFollowUnfollow = asyncHandler(async (req, res, next) => {
+    const currentUserId = req.user?._id;
+    const targetUserId = req.params.targetUserId;
+    if (!targetUserId) throw new ApiError(400, "Target user id is required");
+
+    // here isFollowing can be a follow request or a accepted follow
+
+    const isFollowing = await Follow.findOne({ follower: currentUserId, following: targetUserId });
+    if (isFollowing) {
+        await Follow.findOneAndDelete({ follower: currentUserId, following: targetUserId });
+        return res.status(200).json(new ApiResponse(200, { status: "unfollowed" }, "User unfollowed successfully"));
+    }
+
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) throw new ApiError(400, "User not found");
+
+    const isPrivateAcoount = targetUser.isPrivateAccount;
+    console.log(targetUser);
+
+    if (isPrivateAcoount) {
+        await Follow.create({ follower: currentUserId, following: targetUserId, status: "pending" });
+        return res.status(200).json(new ApiResponse(200, { status: "pending" }, "Follow request sent successfully"));
+    }
+
+    await Follow.create({ follower: currentUserId, following: targetUserId, status: "accepted" });
+    return res.status(200).json(new ApiResponse(200, { status: "accepted" }, "User followed successfully"));
+});
+
+export { userRegister, userLoging, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow };
