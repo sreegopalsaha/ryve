@@ -5,6 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { uploadOnCloudinay } from "../utils/uploadOnCloudinary.js";
 import { Follow } from "../models/follow.model.js";
 import mongoose, { isValidObjectId } from "mongoose";
+import { checkFollowStatus } from "../utils/checkFollowStatus.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -208,7 +209,7 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
     ];
 
     const [profile] = await User.aggregate(pipeline);
-    
+
     if (!profile) throw new ApiError(404, "User not found");
 
     res.status(200).json(new ApiResponse(200, profile, "Profile fetched"));
@@ -266,7 +267,6 @@ const userFollowUnfollow = asyncHandler(async (req, res, next) => {
     if (!targetUser) throw new ApiError(400, "User not found");
 
     const isPrivateAcoount = targetUser.isPrivateAccount;
-    console.log(targetUser);
 
     if (isPrivateAcoount) {
         await Follow.create({ follower: currentUserId, following: targetUserId, status: "pending" });
@@ -277,4 +277,139 @@ const userFollowUnfollow = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(200, { status: "accepted" }, "User followed successfully"));
 });
 
-export { userRegister, userLoging, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow };
+const getUserFollowers = asyncHandler(async (req, res, next) => {
+    const currentUser = req.user;
+    const targetUserId = req.params.targetUserId;
+
+    if (!currentUser) throw new ApiError(401, "Unauthorized access");
+    if (!targetUserId) throw new ApiError(400, "Target user id is required");
+
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) throw new ApiError(404, "User not found");
+
+    let followStatus = null;
+    const isOwner = currentUser._id.toString() === targetUser._id.toString();
+
+    if (!isOwner) {
+        followStatus = await checkFollowStatus(currentUser._id, targetUserId);
+    }
+
+    const canAccess = isOwner || !targetUser.isPrivateAccount || followStatus === "accepted";
+    if (!canAccess) throw new ApiError(403, "Access to followers list denied");
+
+    const pipeline = [
+        { $match: { _id: targetUser._id } },
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$following", "$$userId"] },
+                                    { $eq: ["$status", "accepted"] }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "follower",
+                            foreignField: "_id",
+                            as: "followerDetails"
+                        }
+                    },
+                    { $unwind: { path: "$followerDetails", preserveNullAndEmptyArrays: true } },
+                    {
+                        $project: {
+                            _id: "$followerDetails._id",
+                            username: "$followerDetails.username",
+                            fullname: "$followerDetails.fullname",
+                            profilePicture: "$followerDetails.profilePicture"
+                        }
+                    }
+                ],
+                as: "followers"
+            }
+        },
+        { $project: { followers: 1, _id: 0 } }
+    ];
+
+    const [result] = await User.aggregate(pipeline);
+    const followers = result?.followers || [];
+
+    return res.status(200).json(new ApiResponse(200, followers, "Followers fetched successfully"));
+});
+
+const getUserFollowings = asyncHandler(async (req, res, next) => {
+    const currentUser = req.user;
+    const targetUserId = req.params.targetUserId;
+
+    if (!currentUser) throw new ApiError(401, "Unauthorized access");
+    if (!targetUserId) throw new ApiError(400, "Target user id is required");
+
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) throw new ApiError(404, "User not found");
+
+    let followStatus = null;
+    const isOwner = currentUser._id.toString() === targetUser._id.toString();
+
+    if (!isOwner) {
+        followStatus = await checkFollowStatus(currentUser._id, targetUserId);
+    }
+
+    const canAccess = isOwner || !targetUser.isPrivateAccount || followStatus === "accepted";
+    if (!canAccess) throw new ApiError(403, "Access to followings list denied");
+
+    const pipeline = [
+        { $match: { _id: targetUser._id } },
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$follower", "$$userId"] }, // Find users this user follows
+                                    { $eq: ["$status", "accepted"] }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "following",
+                            foreignField: "_id",
+                            as: "followingDetails"
+                        }
+                    },
+                    { $unwind: { path: "$followingDetails", preserveNullAndEmptyArrays: true } },
+                    {
+                        $project: {
+                            _id: "$followingDetails._id",
+                            username: "$followingDetails.username",
+                            fullname: "$followingDetails.fullname",
+                            profilePicture: "$followingDetails.profilePicture"
+                        }
+                    }
+                ],
+                as: "followings"
+            }
+        },
+        { $project: { followings: 1, _id: 0 } }
+    ];
+
+    const [result] = await User.aggregate(pipeline);
+    const followings = result?.followings || [];
+
+    return res.status(200).json(new ApiResponse(200, followings, "Followings fetched successfully"));
+});
+
+
+export { userRegister, userLoging, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowings };
