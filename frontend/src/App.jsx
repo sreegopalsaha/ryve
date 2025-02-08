@@ -1,10 +1,15 @@
-import React from 'react'
-import Button from './components/atoms/Button'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
-  return (
-    <Button className='bg-error max-w-[10rem] w-full flex items-center justify-center'>Test</Button>
-  )
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <LandingPage />,
+    },
+  ]);
+
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;
