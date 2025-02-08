@@ -10,8 +10,8 @@ const Button = ({
   loading = false,
   ...rest
 }) => {
-  const buttonClass = `px-4 py-2 font-semibold text-white rounded-lg transition duration-300 ease-in-out 
-    ${disabled || loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} 
+  const buttonClass = `
+    ${disabled || loading ? 'bg-gray-400 cursor-not-allowed' : ''} 
     ${className}`;
 
   return (
