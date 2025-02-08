@@ -89,8 +89,49 @@ const getPost = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(200, post, "Post fetched successfully"));
 });
 
-const postLikeUnlike = asyncHandler((req, res, next) => {
+const postLikeUnlike = asyncHandler(async (req, res, next) => {
+    const currentUser = req.user;
+    const { postId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        throw new ApiError(400, "Invalid Post ID");
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+        throw new ApiError(404, "Post not found");
+    }
+
+    const isOwner = post.author.toString() === currentUser._id.toString();
+    if (!isOwner) {
+        const followStatus = await checkFollowStatus(currentUser._id, post.author);
+        if (followStatus !== "accepted") {
+            throw new ApiError(
+                403,
+                "This is a private post"
+            );
+        }
+    }
+
+    const hasLiked = post.likedBy.some(
+        (id) => id.toString() === currentUser._id.toString()
+    );
+
+    let message;
+
+    if (hasLiked) {
+        await Post.findByIdAndUpdate(postId, {
+            $pull: { likedBy: currentUser._id },
+        });
+        message = "Successfully unliked";
+    } else {
+        await Post.findByIdAndUpdate(postId, {
+            $addToSet: { likedBy: currentUser._id },
+        });
+        message = "Successfully liked";
+    }
+
+    res.status(200).json(new ApiResponse(200, message));
 });
 
 const getPostComments = asyncHandler((req, res, next) => {
