@@ -1,9 +1,14 @@
-import React from 'react'
+import Navbar from '../components/organisms/Navbar';
+import { Outlet } from "react-router-dom";
 
 function Applayout() {
   return (
-    <div>Applayout</div>
+    <div className='flex flex-col md:flex-row'>
+      <Navbar/>
+      <Outlet/>
+      
+    </div>
   )
 }
 
-export default Applayout
+export default Applayout;
