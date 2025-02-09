@@ -1,13 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "../components/atoms/Container";
 import Input from "../components/atoms/Input";
 import Button from "../components/atoms/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Card from "../components/atoms/Card";
+import { loginUser } from "../services/ApiServices";
+import Cookies from "js-cookie";
 
 function LoginPage() {
-  const [formData, setFormData] = useState({ usernameOrEmail: "", password: "" });
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) navigate("/");
+  }, []);
+
+  const [formData, setFormData] = useState({
+    emailOrUsername: "",
+    password: "",
+  });
   const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const handleInputChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -15,10 +27,22 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoginError("");
     setLoginLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log("Logging in with:", formData);
-    setLoginLoading(false);
+    try {
+      const res = await loginUser(formData);
+      const token = res.data.data.accessToken;
+      Cookies.set("token", token);
+      navigate("/");
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setLoginError(error.response.data.message || "Login failed");
+      } else {
+        setLoginError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   return (
@@ -31,13 +55,13 @@ function LoginPage() {
         <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
           <Input
             type="text"
-            value={formData.usernameOrEmail}
+            value={formData.emailOrUsername}
             onChange={handleInputChange}
-            name="usernameOrEmail"
+            name="emailOrUsername"
             label="Email or Username"
             autoComplete="username"
             required
-            placeholder="Username or Email"
+            placeholder="Email or Username"
             className="theme-input"
           />
           <Input
@@ -53,26 +77,26 @@ function LoginPage() {
           />
 
           <div className="flex justify-end -mt-2">
-            <Link 
-              to="/forgot-password"
-              className="text-sm theme-link"
-            >
+            <Link to="/forgot-password" className="text-sm theme-link">
               Forgot password?
             </Link>
           </div>
-
+          <div className="h-5 w-full flex items-center">
+            {loginError && <p className="text-red-500">{loginError}</p>}
+          </div>
           <Button
             type="submit"
             disabled={loginLoading}
             loading={loginLoading}
-            className="mt-6 w-full py-3 theme-button"
+            className="w-full py-3 theme-button"
           >
             Login
           </Button>
         </form>
 
         <div className="w-full mt-4 flex gap-3 items-center justify-center theme-text">
-          <p>Don't have an account?
+          <p>
+            Don't have an account?
             <span className="hover:underline transition-all theme-link">
               <Link to="/signup"> Sign up</Link>
             </span>

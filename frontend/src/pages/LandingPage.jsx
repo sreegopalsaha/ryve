@@ -1,9 +1,16 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/atoms/Button";
 import Container from "../components/atoms/Container";
+import Cookies from "js-cookie"
+import { useEffect } from "react";
 
 const LandingPage = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+    useEffect(()=>{
+      const token = Cookies.get('token');
+      if(token) navigate("/");
+    },[]);
+
   return (
     <>
       <Container className="w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center theme-background">        
