@@ -3,6 +3,7 @@ import Container from "../components/atoms/Container";
 import Input from "../components/atoms/Input";
 import Button from "../components/atoms/Button";
 import { Link } from "react-router-dom";
+import Card from "../components/atoms/Card";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ usernameOrEmail: "", password: "" });
@@ -22,7 +23,7 @@ function LoginPage() {
 
   return (
     <Container className="w-full h-full min-w-screen min-h-screen flex items-center justify-center theme-background">
-      <div className="flex flex-col w-full max-w-md p-6 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl theme-card">
+      <Card>
         <h2 className="text-xl font-semibold text-center theme-text">
           Welcome Back!
         </h2>
@@ -77,7 +78,7 @@ function LoginPage() {
             </span>
           </p>
         </div>
-      </div>
+      </Card>
     </Container>
   );
 }

@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/atoms/Button";
 import Container from "../components/atoms/Container";
-import ToggleThemeButton from "../components/molecules/ToggleThemeButton";
 
 const LandingPage = () => {
   const navigate = useNavigate();

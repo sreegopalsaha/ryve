@@ -3,6 +3,7 @@ import Container from "../components/atoms/Container";
 import Input from "../components/atoms/Input";
 import Button from "../components/atoms/Button";
 import { Link, useNavigate } from "react-router-dom";
+import Card from "../components/atoms/Card";
 
 function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -54,7 +55,7 @@ function SignUpPage() {
 
   return (
     <Container className="w-full h-full min-w-screen min-h-screen flex items-center justify-center theme-background">
-      <div className="flex flex-col w-full max-w-md p-6 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl theme-card">
+      <Card>
         <h2 className="text-xl font-semibold text-center theme-text">
           Create Your Account
         </h2>
@@ -131,11 +132,24 @@ function SignUpPage() {
             )}
           </div>
 
+          <div className="w-full">
+          <p className="text-sm theme-text">
+              By signing up, you agree to our{" "}
+              <Link to="/terms" className="text-blue-600 hover:underline theme-link">
+                Terms and Conditions
+              </Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="text-blue-600 hover:underline theme-link">
+                Privacy Policy
+              </Link>
+            </p>
+          </div>
+
           <Button
             type="submit"
             disabled={signupLoading || !passwordMatch || usernameError}
             loading={signupLoading}
-            className="mt-6 w-full py-3 theme-button"
+            className="mt-2 w-full py-3 theme-button"
           >
             Sign Up
           </Button>
@@ -149,7 +163,7 @@ function SignUpPage() {
             </span>
           </p>
         </div>
-      </div>
+      </Card>
     </Container>
   );
 }
