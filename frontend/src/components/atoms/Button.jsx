@@ -18,7 +18,7 @@ const Button = ({
     <button
       onClick={onClick}
       type={type}
-      className={buttonClass}
+      className={`flex items-center justify-center ${buttonClass}`}
       disabled={disabled || loading}
       {...rest}
     >

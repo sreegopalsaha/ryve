@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+    .theme-background {
+      @apply bg-primary-light-bg dark:bg-primary-dark-bg;
+    }
+  
+    .theme-card {
+      @apply bg-primary-light-card dark:bg-primary-dark-card
+             shadow-lg hover:shadow-xl
+             transition-all duration-300;
+    }
+  
+    .theme-text {
+      @apply text-primary-light-text dark:text-primary-dark-text;
+    }
+  
+    .theme-input {
+      @apply bg-primary-light-input dark:bg-primary-dark-input
+             border-primary-light-border dark:border-primary-dark-border
+             text-primary-light-text dark:text-primary-dark-text
+             focus:ring-primary-light-accent dark:focus:ring-primary-dark-accent
+             outline-none rounded-md
+             transition-all duration-300;
+    }
+  
+    .theme-button {
+      @apply bg-primary-light-accent dark:bg-primary-dark-accent
+             hover:bg-primary-light-accent/90 dark:hover:bg-primary-dark-accent/90
+             text-white rounded-md
+             transition-all duration-300
+             disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+  
+    .theme-link {
+      @apply text-primary-light-accent hover:text-primary-light-accent/90
+             dark:text-primary-dark-accent dark:hover:text-primary-dark-accent/90
+             transition-colors duration-300;
+    }
+  }
