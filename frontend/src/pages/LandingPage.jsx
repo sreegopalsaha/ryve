@@ -7,11 +7,7 @@ const LandingPage = () => {
   const navigate = useNavigate();
   return (
     <>
-      <Container className="relative w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center theme-background">
-        <div className="absolute top-4 right-4">
-          <ToggleThemeButton />
-        </div>
-        
+      <Container className="w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center theme-background">        
         <h1 className="text-5xl sm:text-5xl md:text-8xl font-bold mb-8 tracking-tighter theme-text">
           Welcome to Ryve
         </h1>
