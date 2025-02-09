@@ -28,17 +28,20 @@ const userRegister = asyncHandler(async (req, res, next) => {
     const { fullname, username, password, email } = req.body;
     if (!fullname || !username || !password || !email) throw new ApiError(400, "All field are required!");
     const profilePicturePath = req.file?.path;
-    if (!profilePicturePath) throw new ApiError(400, "profile picture is required!");
+    // if (!profilePicturePath) throw new ApiError(400, "profile picture is required!");
 
     const newUsername = username.split(" ").join("_");
 
-    const isUserNameTaken = await User.findOne({ newUsername });
+    const isUserNameTaken = await User.findOne({ username: newUsername });
     if (isUserNameTaken) throw new ApiError(401, "Username is taken");
     const user = await User.findOne({ email });
     if (user) throw new ApiError(400, "Email is already registed");
 
-    const profilePicture = await uploadOnCloudinay(profilePicturePath);
-
+    let profilePicture;
+    if (profilePicturePath) {
+        profilePicture = await uploadOnCloudinay(profilePicturePath);
+    }
+    
     const newUser = await User.create({ fullname, username: newUsername, password, email, profilePicture });
     if (!newUser) throw new ApiError(500, "Error while creating user");
 
@@ -53,7 +56,7 @@ const userRegister = asyncHandler(async (req, res, next) => {
         );
 });
 
-const userLoging = asyncHandler(async (req, res, next) => {
+const userLogin = asyncHandler(async (req, res, next) => {
     const { emailOrUsername, password } = req.body;
 
     if (!emailOrUsername || !password) throw new ApiError(400, "Email and password are required!");
@@ -412,4 +415,4 @@ const getUserFollowings = asyncHandler(async (req, res, next) => {
 });
 
 
-export { userRegister, userLoging, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowings };
+export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowings };

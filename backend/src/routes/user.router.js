@@ -1,11 +1,11 @@
 import express from "express";
 import isLoggedIn from "../middlewares/isLoggedIn.middleware.js";
-import { userRegister, userLoging, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowings } from "../controllers/user.controller.js";
+import { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowings } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 const router = express.Router();
 
 router.post("/register", upload.single("profilePicture"), userRegister);
-router.post("/login", userLoging);
+router.post("/login", userLogin);
 
 router.get("getCurrentUser", isLoggedIn, getCurrentUser);
 
