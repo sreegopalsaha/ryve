@@ -19,3 +19,4 @@ api.interceptors.request.use((config) => {
 
 export const loginUser = (data) => api.post('/user/login', data);
 export const registerUser = (data) => api.post('/user/register', data);
+export const getCurrentUser = () => api.get('/user/getCurrentUser');

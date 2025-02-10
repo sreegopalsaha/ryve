@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer utilities {
+    .skeleton {
+      @apply bg-gray-300 dark:bg-gray-700 rounded-md;
+    }
+    
     .theme-background {
       @apply bg-primary-light-bg dark:bg-primary-dark-bg;
     }
