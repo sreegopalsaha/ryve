@@ -76,7 +76,7 @@ function SignUpPage() {
 
   return (
     <Container className="w-full h-full min-w-screen min-h-screen flex items-center justify-center theme-background">
-      <Card>
+      <Card className="max-w-md">
         <h2 className="text-xl font-semibold text-center theme-text">
           Create Your Account
         </h2>
