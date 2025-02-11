@@ -20,3 +20,8 @@ api.interceptors.request.use((config) => {
 export const loginUser = (data) => api.post('/user/login', data);
 export const registerUser = (data) => api.post('/user/register', data);
 export const getCurrentUser = () => api.get('/user/getCurrentUser');
+export const getUserProfile = (userIdentifier) => api.get(`/user/getUserProfile/${userIdentifier}`);
+
+export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
+export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);
+export const getFollowers = (userIdentifier) => api.get(`/user/getfollowers/${userIdentifier}`);

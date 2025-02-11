@@ -94,10 +94,7 @@ const userLogin = asyncHandler(async (req, res, next) => {
 })
 
 const getCurrentUser = asyncHandler(async (req, res, next) => {
-    const userId = req.user?._id;
-    const user = await findById(userId);
-    if (!user) throw new ApiError(400, "User not found");
-
+    const user = req.user;
     return res.status(200).json(new ApiResponse(
         200,
         user,
@@ -107,7 +104,7 @@ const getCurrentUser = asyncHandler(async (req, res, next) => {
 
 const getUserProfile = asyncHandler(async (req, res, next) => {
     const currentUserId = req.user._id;
-    const targetIdentifier = req.params.targetUserIdOrUsername;
+    const targetIdentifier = req.params?.userIdentifier;
 
     const targetUser = await User.findOne({
         $or: [
@@ -117,8 +114,6 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
     }).select('_id').lean();
 
     if (!targetUser) throw new ApiError(404, "User not found");
-
-    const isSameAccount = new mongoose.Types.ObjectId(currentUserId).equals(targetUser._id);
 
     const pipeline = [
         { $match: { _id: targetUser._id } },
@@ -159,31 +154,9 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
                         }
                     }
                 ],
-                as: "followings"
+                as: "following"
             }
         },
-
-        ...(!isSameAccount ? [{
-            $lookup: {
-                from: "follows",
-                let: { targetId: "$_id" },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $eq: ["$follower", new mongoose.Types.ObjectId(currentUserId)] },
-                                    { $eq: ["$following", "$$targetId"] }
-                                ]
-                            }
-                        }
-                    },
-                    { $project: { status: 1 } }
-                ],
-                as: "followStatus"
-            }
-        }] : []),
-
         {
             $project: {
                 username: 1,
@@ -193,20 +166,8 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
                 location: 1,
                 isPrivateAccount: 1,
                 createdAt: 1,
-                totalFollowers: { $size: "$followers" },
-                totalFollowings: { $size: "$followings" },
-                followStatus: {
-                    $cond: {
-                        if: isSameAccount,
-                        then: "$$REMOVE",
-                        else: {
-                            $ifNull: [
-                                { $arrayElemAt: ["$followStatus.status", 0] },
-                                null
-                            ]
-                        }
-                    }
-                }
+                followers: { $size: "$followers" },
+                following: { $size: "$following" },
             }
         }
     ];
@@ -215,6 +176,7 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
 
     if (!profile) throw new ApiError(404, "User not found");
 
+    profile.followStatus = await checkFollowStatus(currentUserId, profile._id);
     res.status(200).json(new ApiResponse(200, profile, "Profile fetched"));
 });
 
@@ -263,7 +225,7 @@ const userFollowUnfollow = asyncHandler(async (req, res, next) => {
     const isFollowing = await Follow.findOne({ follower: currentUserId, following: targetUserId });
     if (isFollowing) {
         await Follow.findOneAndDelete({ follower: currentUserId, following: targetUserId });
-        return res.status(200).json(new ApiResponse(200, { status: "unfollowed" }, "User unfollowed successfully"));
+        return res.status(200).json(new ApiResponse(200, { status: "not-following" }, "User unfollowed successfully"));
     }
 
     const targetUser = await User.findById(targetUserId);
@@ -282,19 +244,20 @@ const userFollowUnfollow = asyncHandler(async (req, res, next) => {
 
 const getUserFollowers = asyncHandler(async (req, res, next) => {
     const currentUser = req.user;
-    const targetUserId = req.params.targetUserId;
+    const userIdentifier = req.params.userIdentifier;
 
     if (!currentUser) throw new ApiError(401, "Unauthorized access");
-    if (!targetUserId) throw new ApiError(400, "Target user id is required");
+    if (!userIdentifier) throw new ApiError(400, "Target user id is required");
 
-    const targetUser = await User.findById(targetUserId);
+    const targetUser = await User.findOne({$or: [{username: userIdentifier}, { _id: mongoose.Types.ObjectId.isValid(userIdentifier) ? new mongoose.Types.ObjectId(userIdentifier) : null }
+    ]});
     if (!targetUser) throw new ApiError(404, "User not found");
 
     let followStatus = null;
     const isOwner = currentUser._id.toString() === targetUser._id.toString();
 
     if (!isOwner) {
-        followStatus = await checkFollowStatus(currentUser._id, targetUserId);
+        followStatus = await checkFollowStatus(currentUser._id, targetUser._id);
     }
 
     const canAccess = isOwner || !targetUser.isPrivateAccount || followStatus === "accepted";
@@ -342,30 +305,44 @@ const getUserFollowers = asyncHandler(async (req, res, next) => {
     ];
 
     const [result] = await User.aggregate(pipeline);
-    const followers = result?.followers || [];
+    let followers = result?.followers || [];
+
+    followers = await Promise.all(followers.map(async (follower) => {
+        const status = await checkFollowStatus(currentUser._id, follower._id);
+        return {
+            ...follower,
+            followStatus: status
+        };
+    }));
 
     return res.status(200).json(new ApiResponse(200, followers, "Followers fetched successfully"));
 });
 
-const getUserFollowings = asyncHandler(async (req, res, next) => {
+const getUserFollowing = asyncHandler(async (req, res, next) => {
     const currentUser = req.user;
-    const targetUserId = req.params.targetUserId;
+    const userIdentifier = req.params.userIdentifier;
 
     if (!currentUser) throw new ApiError(401, "Unauthorized access");
-    if (!targetUserId) throw new ApiError(400, "Target user id is required");
+    if (!userIdentifier) throw new ApiError(400, "Target user id is required");
 
-    const targetUser = await User.findById(targetUserId);
+    const targetUser = await User.findOne({
+        $or: [
+            { username: userIdentifier }, 
+            { _id: mongoose.Types.ObjectId.isValid(userIdentifier) ? new mongoose.Types.ObjectId(userIdentifier) : null }
+        ]
+    });
+    
     if (!targetUser) throw new ApiError(404, "User not found");
 
     let followStatus = null;
     const isOwner = currentUser._id.toString() === targetUser._id.toString();
 
     if (!isOwner) {
-        followStatus = await checkFollowStatus(currentUser._id, targetUserId);
+        followStatus = await checkFollowStatus(currentUser._id, targetUser._id);
     }
 
     const canAccess = isOwner || !targetUser.isPrivateAccount || followStatus === "accepted";
-    if (!canAccess) throw new ApiError(403, "Access to followings list denied");
+    if (!canAccess) throw new ApiError(403, "Private Account");
 
     const pipeline = [
         { $match: { _id: targetUser._id } },
@@ -378,7 +355,7 @@ const getUserFollowings = asyncHandler(async (req, res, next) => {
                         $match: {
                             $expr: {
                                 $and: [
-                                    { $eq: ["$follower", "$$userId"] }, // Find users this user follows
+                                    { $eq: ["$follower", "$$userId"] },
                                     { $eq: ["$status", "accepted"] }
                                 ]
                             }
@@ -398,7 +375,8 @@ const getUserFollowings = asyncHandler(async (req, res, next) => {
                             _id: "$followingDetails._id",
                             username: "$followingDetails.username",
                             fullname: "$followingDetails.fullname",
-                            profilePicture: "$followingDetails.profilePicture"
+                            profilePicture: "$followingDetails.profilePicture",
+                            isPrivateAccount: "$followingDetails.isPrivateAccount"
                         }
                     }
                 ],
@@ -409,10 +387,18 @@ const getUserFollowings = asyncHandler(async (req, res, next) => {
     ];
 
     const [result] = await User.aggregate(pipeline);
-    const followings = result?.followings || [];
+    let followings = result?.followings || [];
+
+    // Fetch follow status for each following user
+    followings = await Promise.all(followings.map(async (user) => {
+        const followStatus = await checkFollowStatus(currentUser._id, user._id);
+        return {
+            ...user,
+            followStatus
+        };
+    }));
 
     return res.status(200).json(new ApiResponse(200, followings, "Followings fetched successfully"));
 });
 
-
-export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowings };
+export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing };

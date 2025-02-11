@@ -37,7 +37,24 @@ const deletePost = asyncHandler(async (req, res, next) => {
 });
 
 const getFeedPosts = asyncHandler((req, res, next) => {
-
+    //find the following of the user
+    //find the post user the author is the following user
+    //also find the post where the author is current user
+    //and then send in this format
+    // [
+        // {
+        //     content:
+        //     image:
+        //     liked:
+        //     isLiked:
+        //     createdAt:
+        //     author: {
+        //         name:
+        //         username:
+        //         profilePic
+        //     }
+        // }
+    // ]
 });
 
 const getPost = asyncHandler(async (req, res, next) => {
