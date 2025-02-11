@@ -1,6 +1,6 @@
 import { Home, MessageCircle, Bell, User, Compass, Search, TrendingUpIcon, UserPlus, Settings, HelpCircleIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import Screen from "../molecules/Screen";
+import Screen from "../components/molecules/Screen";
 
 function Navbar() {
     const sidebarItems = [

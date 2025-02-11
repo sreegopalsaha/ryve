@@ -3,11 +3,13 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import ThemeLayout from "./layout/ThemeLayout";
-import FeedPage from "./pages/FeedPage";
+import FeedPage from "./pages/FeedPage/FeedPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import MessagesPage from "./pages/MessagesPage";
 import Applayout from "./layout/Applayout";
 import PrivateRoute from "./PrivateRoute";
+import UserProfilePage from "./pages/ProfilePage/ProfilePage";
+import FollowingFollowersPage from "./pages/FollowingFollowersPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -28,6 +30,19 @@ function App() {
           element: <PrivateRoute element={<MessagesPage/>}/>
 
         },
+        {
+          path: ":userIdentifier",
+          element: <PrivateRoute element={<UserProfilePage />} />,
+        },
+        {
+          path: ":userIdentifier/following",
+          element: <PrivateRoute element={<FollowingFollowersPage />} />,
+        },
+        {
+          path: ":userIdentifier/followers",
+          element: <PrivateRoute element={<FollowingFollowersPage />} />,
+        }
+
       ],
     },
     {

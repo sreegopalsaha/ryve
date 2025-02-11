@@ -1,4 +1,4 @@
-import Screen from "../molecules/Screen";
+import Screen from "../components/molecules/Screen";
 function RightSidebar() {
   
   return (

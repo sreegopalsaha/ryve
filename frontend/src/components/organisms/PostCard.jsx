@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Heart, MessageCircle, Repeat2, Share, Star } from "lucide-react";
-import Card from "../atoms/Card";
+import { Heart, MessageCircle, Share, Star } from "lucide-react";
+import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 
-function PostCard({ post }) {
+function PostCard({ post, author }) {
   const [likes, setLikes] = useState(post.likes);
   const [liked, setLiked] = useState(false);
 
@@ -17,13 +17,13 @@ function PostCard({ post }) {
       {/* User Info */}
       <div className="flex items-center gap-3 theme-text">
         <img
-          src={post.author.profilePicture}
-          alt={post.author.name}
+          src={author.profilePicture}
+          alt={author.name}
           className="w-10 h-10 rounded-full"
         />
         <div>
-          <p className="font-medium">{post.author.name}</p>
-          <p className="text-sm text-gray-500">{post.author.username}</p>
+          <p className="font-medium">{author.name}</p>
+          <p className="text-sm text-gray-500">{author.username}</p>
         </div>
       </div>
 

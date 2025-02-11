@@ -3,7 +3,10 @@
 @tailwind utilities;
 
 @layer utilities {
-    .skeleton {
+  .followButtonStyle {
+    @apply px-4 py-2 text-sm rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600;
+  }
+            .skeleton {
       @apply bg-gray-300 dark:bg-gray-700 rounded-md;
     }
     

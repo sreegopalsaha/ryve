@@ -1,6 +1,6 @@
-import Navbar from '../components/organisms/Navbar';
+import Navbar from './Navbar';
 import { Outlet } from "react-router-dom";
-import RightSidebar from '../components/organisms/RightSidebar';
+import RightSidebar from './RightSidebar';
 
 function Applayout() {
   return (

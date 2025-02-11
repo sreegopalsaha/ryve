@@ -3,7 +3,7 @@ import Container from "../components/atoms/Container";
 import Input from "../components/atoms/Input";
 import Button from "../components/atoms/Button";
 import { Link, useNavigate } from "react-router-dom";
-import Card from "../components/atoms/Card";
+import Card from "../components/molecules/Card";
 import { registerUser } from "../services/ApiServices";
 import Cookies from "js-cookie"
 

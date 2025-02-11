@@ -21,7 +21,7 @@ export const CurrentUserProvider = ({ children }) => {
 
         try {
             const res = await getCurrentUser();
-            setCurrentUser(res.data);
+            setCurrentUser(res.data.data);
         } catch (error) {
             console.log("Unable to fetch current user", error);
             setCurrentUserError(error?.response?.data?.message || "Something went wrong");
