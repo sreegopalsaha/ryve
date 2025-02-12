@@ -4,8 +4,8 @@ import ProfileCard from "./ProfileCard";
 import UserPosts from "../../components/organisms/UserPosts";
 import { useParams } from "react-router-dom";
 import { getUserPosts, getUserProfile } from "../../services/ApiServices";
-import ProfileCardLoading from "../../components/loadings/ProfileCardLoading";
-import { PostsLoading } from "../../components/Loadings/PostLoadingCard";
+import ProfileCardLoading from "../../components/loadings/PostLoadingCard"
+import { PostsLoading } from "../../components/loadings/PostLoadingCard";
 import GlobalError from "../../components/errors/GlobalError";
 
 function UserProfilePage() {
