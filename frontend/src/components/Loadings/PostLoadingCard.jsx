@@ -1,5 +1,5 @@
 import React from "react";
-import Card from "../atoms/Card";
+import Card from "../molecules/Card";
 
 function PostLoadingCard({ className = "" }) {
   return (
@@ -27,7 +27,7 @@ function PostLoadingCard({ className = "" }) {
 
 const PostLoading = () => <PostLoadingCard className="h-[70%]" />;
 
-const FeedLoading = () => (
+const PostsLoading = () => (
   <>
     {[...Array(5)].map((_, index) => (
       <PostLoadingCard key={index} />
@@ -35,4 +35,4 @@ const FeedLoading = () => (
   </>
 );
 
-export { PostLoading, PostLoadingCard, FeedLoading };
+export { PostLoading, PostLoadingCard, PostsLoading };

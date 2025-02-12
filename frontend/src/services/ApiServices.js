@@ -21,6 +21,8 @@ export const loginUser = (data) => api.post('/user/login', data);
 export const registerUser = (data) => api.post('/user/register', data);
 export const getCurrentUser = () => api.get('/user/getCurrentUser');
 export const getUserProfile = (userIdentifier) => api.get(`/user/getUserProfile/${userIdentifier}`);
+export const getUserPosts = (userIdentifier) => api.get(`/post/getUserPosts/${userIdentifier}`);
+export const postLikeToggle = (postId)=> api.get(`/post/postLikeToggle/${postId}`);
 
 export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
 export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);
