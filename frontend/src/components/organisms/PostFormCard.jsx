@@ -105,7 +105,7 @@ const PostFormCard = ({ setPosts }) => {
           />
           <label
             htmlFor="image-upload"
-            className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-800 rounded"
+            className="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-800 text-white rounded"
           >
             <UploadCloud className="h-6 w-6" />
             <span className="ml-2">
