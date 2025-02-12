@@ -45,7 +45,7 @@ const ErrorPage = ({ error }) => {
   }
 
   return (
-    <Card className="items-center justify-center">
+    <Card className="items-center justify-center flex-1">
         <div className="w-24 h-24 flex items-center justify-center">
           <Icon size={48} className="text-gray-500 dark:text-gray-300" />
         </div>

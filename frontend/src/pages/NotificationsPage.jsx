@@ -1,8 +1,9 @@
 import React from 'react'
+import Screen from '../components/molecules/Screen'
 
 function NotificationsPage() {
   return (
-    <div>NotificationsPage</div>
+    <Screen middleScreen>NotificationsPage</Screen>
   )
 }
 

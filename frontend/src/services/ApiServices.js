@@ -4,9 +4,6 @@ import Cookies from 'js-cookie';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 api.interceptors.request.use((config) => {
@@ -22,7 +19,9 @@ export const registerUser = (data) => api.post('/user/register', data);
 export const getCurrentUser = () => api.get('/user/getCurrentUser');
 export const getUserProfile = (userIdentifier) => api.get(`/user/getUserProfile/${userIdentifier}`);
 export const getUserPosts = (userIdentifier) => api.get(`/post/getUserPosts/${userIdentifier}`);
+export const getFeedPosts = ()=> api.get("/post/getFeedPosts");
 export const postLikeToggle = (postId)=> api.get(`/post/postLikeToggle/${postId}`);
+export const createPost = (data) => api.post("/post/createPost", data);
 
 export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
 export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);

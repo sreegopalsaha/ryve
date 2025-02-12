@@ -1,8 +1,9 @@
 import React from 'react'
+import Screen from '../components/molecules/Screen'
 
 function MessagesPage() {
   return (
-    <div>MessagesPage</div>
+    <Screen middleScreen>MessagesPage</Screen>
   )
 }
 

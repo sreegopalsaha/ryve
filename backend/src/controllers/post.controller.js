@@ -6,6 +6,7 @@ import { uploadOnCloudinay } from "../utils/uploadOnCloudinary.js";
 import { checkFollowStatus } from "../utils/checkFollowStatus.js"
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
+import { Follow } from "../models/follow.model.js";
 
 const createPost = asyncHandler(async (req, res, next) => {
     const author = req.user?._id;
@@ -37,25 +38,40 @@ const deletePost = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(200, {}, "Post deleted successfully"));
 });
 
-const getFeedPosts = asyncHandler((req, res, next) => {
-    //find the following of the user
-    //find the post user the author is the following user
-    //also find the post where the author is current user
-    //and then send in this format
-    // [
-    // {
-    //     content:
-    //     image:
-    //     liked:
-    //     isLiked:
-    //     createdAt:
-    //     author: {
-    //         name:
-    //         username:
-    //         profilePic
-    //     }
-    // }
-    // ]
+const getFeedPosts = asyncHandler(async(req, res, next) => {
+        const currentUser = req.user;
+    
+        const followRecords = await Follow.find({
+            follower: currentUser._id,
+            status: "accepted"
+        });
+    
+        const followeeIds = followRecords.map(record => record.following);
+    
+        const userIds = [...followeeIds, currentUser._id];
+    
+        const posts = await Post.find({ author: { $in: userIds } })
+            .sort({ createdAt: -1 })
+            .populate({
+                path: 'author',
+                select: 'fullname username profilePicture'
+            });
+    
+        const formattedPosts = posts.map(post => ({
+            content: post.content,
+            image: post.image,
+            likedBy: post.likedBy,
+            createdAt: post.createdAt,
+            _id: post._id,
+            author: {
+                _id: post.author._id,
+                fullname: post.author.fullname,
+                username: post.author.username,
+                profilePicture: post.author.profilePicture
+            }
+        }));
+    
+        res.status(200).json(new ApiResponse(200, formattedPosts, "Feed posts fetched successfully"));
 });
 
 const getUserPosts = asyncHandler(async (req, res, next) => {
@@ -139,12 +155,12 @@ const postLikeToggle = asyncHandler(async (req, res, next) => {
 
     const post = await Post.findById(postId).populate("author", "isPrivateAccount");
     if (!post) throw new ApiError(404, "Post not found");
-    if(!post.author) return res.status(404).json({ error: "Author not found" });
-    
+    if (!post.author) return res.status(404).json({ error: "Author not found" });
+
     const isOwner = post.author.toString() === currentUser._id.toString();
-    if (!isOwner && post.author.isPrivateAccount ) {
+    if (!isOwner && post.author.isPrivateAccount) {
         const followStatus = await checkFollowStatus(currentUser._id, post.author);
-        if ( followStatus !== "accepted") throw new ApiError(403, "This is a private post");
+        if (followStatus !== "accepted") throw new ApiError(403, "This is a private post");
     }
 
     const hasLiked = post.likedBy.some(
