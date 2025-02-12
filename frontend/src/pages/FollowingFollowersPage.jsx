@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import UserList from "../components/organisms/UserList";
 import { getFollowing, getFollowers } from "../services/ApiServices";
-import { PostsLoading } from "../components/Loadings/PostLoadingCard";
+import { PostsLoading } from "../components/loadings/PostLoadingCard";
 import GlobalError from "../components/errors/GlobalError";
 import Screen from "../components/molecules/Screen";
 import { useParams, useLocation } from "react-router-dom";

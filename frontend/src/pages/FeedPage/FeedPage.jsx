@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Screen from "../../components/molecules/Screen";
-import {PostsLoading} from "../../components/Loadings/PostLoadingCard";
+import {PostsLoading} from "../../components/loadings/PostLoadingCard";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
 import { getFeedPosts } from "../../services/ApiServices";
 import FeedPosts from "./FeedPosts";
