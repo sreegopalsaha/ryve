@@ -18,4 +18,4 @@ router.post("/followUnfollow/:targetUserId", isLoggedIn, userFollowUnfollow);
 router.get("/getFollowers/:userIdentifier", isLoggedIn, getUserFollowers);
 router.get("/getFollowing/:userIdentifier", isLoggedIn, getUserFollowing);
 
-// export default router;
+export default router;

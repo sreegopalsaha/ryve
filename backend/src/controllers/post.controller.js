@@ -5,6 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js"
 import { uploadOnCloudinay } from "../utils/uploadOnCloudinary.js";
 import { checkFollowStatus } from "../utils/checkFollowStatus.js"
 import mongoose from "mongoose";
+import { User } from "../models/user.model.js";
 
 const createPost = asyncHandler(async (req, res, next) => {
     const author = req.user?._id;
@@ -42,55 +43,77 @@ const getFeedPosts = asyncHandler((req, res, next) => {
     //also find the post where the author is current user
     //and then send in this format
     // [
-        // {
-        //     content:
-        //     image:
-        //     liked:
-        //     isLiked:
-        //     createdAt:
-        //     author: {
-        //         name:
-        //         username:
-        //         profilePic
-        //     }
-        // }
+    // {
+    //     content:
+    //     image:
+    //     liked:
+    //     isLiked:
+    //     createdAt:
+    //     author: {
+    //         name:
+    //         username:
+    //         profilePic
+    //     }
+    // }
     // ]
+});
+
+const getUserPosts = asyncHandler(async (req, res, next) => {
+    const { userIdentifier } = req.params;
+    const currentUser = req.user;
+    if (!userIdentifier) throw new ApiError(400, "userIdentifier is required");
+
+    const query = mongoose.isValidObjectId(userIdentifier)
+        ? { _id: new mongoose.Types.ObjectId(userIdentifier) }
+        : { username: userIdentifier };
+
+    const targetUser = await User.findOne(query);
+
+    if (!targetUser) throw new ApiError(404, "User not found");
+
+    const followStatus = checkFollowStatus(currentUser._id, targetUser._id);
+    const canAccess = !targetUser.isPrivateAccount || followStatus === "accepted";
+    if (!canAccess) throw new ApiError(403, "Private Account");
+
+    const posts = await Post.find({ author: targetUser._id });
+
+    res.status(200).json(new ApiResponse(200, posts, "Posts fetched successfully"));
 });
 
 const getPost = asyncHandler(async (req, res, next) => {
     const { postId } = req.params;
     if (!postId) throw new ApiError(400, "Post ID is required");
     const currentUserId = req.user._id;
-        const postPipeline = [
-            { $match: { _id: new mongoose.Types.ObjectId(postId) } },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "author",
-                    foreignField: "_id",
-                    as: "authorDetails"
-                }
-            },
-            { $unwind: "$authorDetails" },
-            {
-                $project: {
-                    _id: 1,
-                    content: 1,
-                    image: 1,
-                    createdAt: 1,
-                    likedBy: 1,
-                    "authorDetails._id": 1,
-                    "authorDetails.fullname": 1,
-                    "authorDetails.username": 1,
-                    "authorDetails.profilePicture": 1,
-                    "authorDetails.isPrivateAccount": 1
-                }
+    const postPipeline = [
+        { $match: { _id: new mongoose.Types.ObjectId(postId) } },
+        {
+            $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "authorDetails"
             }
-        ];
+        },
+        { $unwind: "$authorDetails" },
+        {
+            $project: {
+                _id: 1,
+                content: 1,
+                image: 1,
+                createdAt: 1,
+                likedBy: 1,
+                "authorDetails._id": 1,
+                "authorDetails.fullname": 1,
+                "authorDetails.username": 1,
+                "authorDetails.profilePicture": 1,
+                "authorDetails.isPrivateAccount": 1
+            }
+        }
+    ];
 
     let post = await Post.aggregate(postPipeline);
     if (!post.length) throw new ApiError(404, "Post not found");
-    
+
     post = post[0];
 
     const isOwner = post.authorDetails._id.toString() === currentUserId.toString();
@@ -106,7 +129,7 @@ const getPost = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(200, post, "Post fetched successfully"));
 });
 
-const postLikeUnlike = asyncHandler(async (req, res, next) => {
+const postLikeToggle = asyncHandler(async (req, res, next) => {
     const currentUser = req.user;
     const { postId } = req.params;
 
@@ -114,20 +137,14 @@ const postLikeUnlike = asyncHandler(async (req, res, next) => {
         throw new ApiError(400, "Invalid Post ID");
     }
 
-    const post = await Post.findById(postId);
-    if (!post) {
-        throw new ApiError(404, "Post not found");
-    }
-
+    const post = await Post.findById(postId).populate("author", "isPrivateAccount");
+    if (!post) throw new ApiError(404, "Post not found");
+    if(!post.author) return res.status(404).json({ error: "Author not found" });
+    
     const isOwner = post.author.toString() === currentUser._id.toString();
-    if (!isOwner) {
+    if (!isOwner && post.author.isPrivateAccount ) {
         const followStatus = await checkFollowStatus(currentUser._id, post.author);
-        if (followStatus !== "accepted") {
-            throw new ApiError(
-                403,
-                "This is a private post"
-            );
-        }
+        if ( followStatus !== "accepted") throw new ApiError(403, "This is a private post");
     }
 
     const hasLiked = post.likedBy.some(
@@ -159,4 +176,4 @@ const updatePost = asyncHandler((req, res, next) => {
 
 });
 
-export { getFeedPosts, postLikeUnlike, createPost, deletePost, updatePost, getPost, getPostComments };
+export { getFeedPosts, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments };
