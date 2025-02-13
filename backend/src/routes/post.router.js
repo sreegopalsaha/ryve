@@ -1,10 +1,12 @@
 import express from "express";
 import isLoggedIn from "../middlewares/isLoggedIn.middleware.js";
-import { getFeedPosts, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments } from "../controllers/post.controller.js";
+import { getFeedPosts, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments, enhanceContent } from "../controllers/post.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 const router = express.Router();
 
 router.post("/createPost", upload.single("image"), isLoggedIn, createPost);
+
+router.post("/enhanceContent", isLoggedIn, enhanceContent);
 
 router.get("/deletePost/:postId", isLoggedIn, deletePost);
 

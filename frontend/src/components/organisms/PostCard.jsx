@@ -4,7 +4,7 @@ import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
 import { postLikeToggle } from "../../services/ApiServices";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function PostCard({ post, author }) {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ function PostCard({ post, author }) {
     }
 
     setLikedBy(newLikedBy);
-    setLiked(!liked); 
+    setLiked(!liked);
 
     try {
       await postLikeToggle(post._id);
@@ -41,9 +41,12 @@ function PostCard({ post, author }) {
   };
 
   return (
-    <Card className="w-full gap-4">
+    <Card className="w-full gap-4 max-w-[40rem]">
       {/* User Info */}
-      <div onClick={() => author?._id && navigate(`/${author.username}`)} className="cursor-pointer flex items-center gap-3 theme-text">
+      <div
+        onClick={() => navigate(`/${author.username}`)}
+        className="cursor-pointer flex items-center gap-3 theme-text"
+      >
         <img
           src={author.profilePicture}
           alt={author.fullname}
@@ -56,7 +59,9 @@ function PostCard({ post, author }) {
       </div>
 
       {/* Post Content */}
-      <p className="theme-text">{post.content}</p>
+      <p className="theme-text whitespace-pre-wrap break-words overflow-hidden text-ellipsis">
+        {post.content}
+      </p>
 
       {/* Post Image */}
       {post.image && (

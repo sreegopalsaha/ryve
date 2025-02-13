@@ -26,3 +26,6 @@ export const createPost = (data) => api.post("/post/createPost", data);
 export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
 export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);
 export const getFollowers = (userIdentifier) => api.get(`/user/getfollowers/${userIdentifier}`);
+
+export const getLocation = (latitude, longitude) => axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+export const enhanceContent = (data) => api.post("/post/enhanceContent", data);

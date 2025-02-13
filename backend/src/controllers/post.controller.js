@@ -7,6 +7,8 @@ import { checkFollowStatus } from "../utils/checkFollowStatus.js"
 import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { Follow } from "../models/follow.model.js";
+import getAiResponse from "../utils/getAiResponse.js";
+import { json } from "express";
 
 const createPost = asyncHandler(async (req, res, next) => {
     const author = req.user?._id;
@@ -24,6 +26,24 @@ const createPost = asyncHandler(async (req, res, next) => {
     res.status(201).json(new ApiResponse(201, post, "Post created successfully"));
 });
 
+const enhanceContent = asyncHandler(async (req, res, next) => {
+    if (!req.body.content) throw new ApiError(400, "content is required")
+    const response = await getAiResponse(
+        `Revise this text to enhance clarity and readability while STRICTLY preserving the original meaning. 
+            Follow these rules:
+            1. Maintain original facts and intent
+            2. Use simple, conversational English
+            3. Avoid markdown formatting
+            4. Keep paragraphs under 4 sentences
+            5. Output as single plain text paragraph
+          
+            Text to revise:`,
+        req.body.content
+    );
+    if (!response) throw new ApiError(500, "Error while getting AI response");
+    return res.status(200).json(new ApiResponse(200, response, "Enhanced with AI"));
+});
+
 const deletePost = asyncHandler(async (req, res, next) => {
     const user = req.user;
     const postId = req.params.postId;
@@ -38,40 +58,40 @@ const deletePost = asyncHandler(async (req, res, next) => {
     res.status(200).json(new ApiResponse(200, {}, "Post deleted successfully"));
 });
 
-const getFeedPosts = asyncHandler(async(req, res, next) => {
-        const currentUser = req.user;
-    
-        const followRecords = await Follow.find({
-            follower: currentUser._id,
-            status: "accepted"
+const getFeedPosts = asyncHandler(async (req, res, next) => {
+    const currentUser = req.user;
+
+    const followRecords = await Follow.find({
+        follower: currentUser._id,
+        status: "accepted"
+    });
+
+    const followeeIds = followRecords.map(record => record.following);
+
+    const userIds = [...followeeIds, currentUser._id];
+
+    const posts = await Post.find({ author: { $in: userIds } })
+        .sort({ createdAt: -1 })
+        .populate({
+            path: 'author',
+            select: 'fullname username profilePicture'
         });
-    
-        const followeeIds = followRecords.map(record => record.following);
-    
-        const userIds = [...followeeIds, currentUser._id];
-    
-        const posts = await Post.find({ author: { $in: userIds } })
-            .sort({ createdAt: -1 })
-            .populate({
-                path: 'author',
-                select: 'fullname username profilePicture'
-            });
-    
-        const formattedPosts = posts.map(post => ({
-            content: post.content,
-            image: post.image,
-            likedBy: post.likedBy,
-            createdAt: post.createdAt,
-            _id: post._id,
-            author: {
-                _id: post.author._id,
-                fullname: post.author.fullname,
-                username: post.author.username,
-                profilePicture: post.author.profilePicture
-            }
-        }));
-    
-        res.status(200).json(new ApiResponse(200, formattedPosts, "Feed posts fetched successfully"));
+
+    const formattedPosts = posts.map(post => ({
+        content: post.content,
+        image: post.image,
+        likedBy: post.likedBy,
+        createdAt: post.createdAt,
+        _id: post._id,
+        author: {
+            _id: post.author._id,
+            fullname: post.author.fullname,
+            username: post.author.username,
+            profilePicture: post.author.profilePicture
+        }
+    }));
+
+    res.status(200).json(new ApiResponse(200, formattedPosts, "Feed posts fetched successfully"));
 });
 
 const getUserPosts = asyncHandler(async (req, res, next) => {
@@ -192,4 +212,4 @@ const updatePost = asyncHandler((req, res, next) => {
 
 });
 
-export { getFeedPosts, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments };
+export { getFeedPosts, enhanceContent, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments };
