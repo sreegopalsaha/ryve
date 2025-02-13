@@ -1,8 +1,11 @@
 import { Home, MessageCircle, Bell, User, Compass, Search, TrendingUpIcon, UserPlus, Settings, HelpCircleIcon } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import Screen from "../components/molecules/Screen";
+import { useCurrentUser } from "../contexts/CurrentUserProvider";
 
 function Navbar() {
+  const {currentUser} = useCurrentUser();
+
     const sidebarItems = [
       { name: "Home", slug: "/", icon: Home },
       { name: "Notifications", slug: "/notifications", icon: Bell },
@@ -11,10 +14,9 @@ function Navbar() {
       { name: "Explore", slug: "/explore", icon: Compass },
       { name: "Trending", slug: "/trending", icon: TrendingUpIcon },
       { name: "Follow Requests", slug: "/follow-requests", icon: UserPlus },
-      { name: "Profile", slug: "/profile", icon: User },
+      { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
       { name: "Help", slug: "/Help", icon: HelpCircleIcon },
       { name: "Settings", slug: "/settings", icon: Settings },
-
   ];
 
     const mobileNavItems = [
@@ -22,7 +24,7 @@ function Navbar() {
         { name: "Search", slug: "/search", icon: Search },
         { name: "Notifications", slug: "/notifications", icon: Bell },
         { name: "Messages", slug: "/messages", icon: MessageCircle },
-        { name: "Profile", slug: "/profile", icon: User },
+        { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
     ];
 
     return (
@@ -41,7 +43,9 @@ function Navbar() {
             isActive
               ? "bg-gray-200 dark:bg-gray-800"
               : "hover:bg-gray-200 dark:hover:bg-gray-800"
-          }`
+          }
+           ${!currentUser ? "pointer-events-none opacity-50" : ""}
+          `
                 }
               >
                 <item.icon className="w-6 h-6" />
@@ -57,7 +61,9 @@ function Navbar() {
             <NavLink
               key={item.slug}
               to={item.slug}
-              className="p-2 flex flex-col items-center theme-text"
+              className={({isActive})=> `p-2 flex flex-col items-center theme-text ${isActive ? "bg-gray-200 dark:bg-gray-800 rounded-full" : "hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full"} 
+              ${!currentUser ? "pointer-events-none opacity-50" : ""}
+`}
             >
               <item.icon className="w-6 h-6" />
             </NavLink>

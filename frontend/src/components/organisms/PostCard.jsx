@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Heart, MessageCircle, Share, Star } from "lucide-react";
+import { Heart, MessageCircle, MoreVertical, Share, Star } from "lucide-react";
 import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
 import { postLikeToggle } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 
 function PostCard({ post, author }) {
   const navigate = useNavigate();
@@ -43,18 +44,35 @@ function PostCard({ post, author }) {
   return (
     <Card className="w-full gap-4 max-w-[40rem]">
       {/* User Info */}
-      <div
-        onClick={() => navigate(`/${author.username}`)}
-        className="cursor-pointer flex items-center gap-3 theme-text"
-      >
-        <img
-          src={author.profilePicture}
-          alt={author.fullname}
-          className="w-10 h-10 rounded-full"
-        />
-        <div>
-          <p className="font-medium">{author.fullname}</p>
-          <p className="text-sm text-gray-500">@{author.username}</p>
+
+      <div className="cursor-pointer flex items-center justify-between gap-3 theme-text ">
+        {/* left side */}
+        <div onClick={() => navigate(`/${author.username}`)}
+          className="flex cursor-pointer items-center gap-3"
+        >
+          <img
+            src={author.profilePicture}
+            alt={author.fullname}
+            className="w-10 h-10 rounded-full "
+          />
+          <div>
+            <p className="font-medium">{author.fullname}</p>
+            <p className="text-sm text-gray-500">@{author.username}</p>
+          </div>
+        </div>
+
+        {/* right side */}
+        <div className="flex gap-2">
+        <p className="text-xs text-gray-400">
+          {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+        </p>
+
+        <Button
+          onClick={() => {}}>
+          <MoreVertical size={20} />
+        </Button>
+
+
         </div>
       </div>
 
