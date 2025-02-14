@@ -1,13 +1,13 @@
 import NoDataFound from "./NoDataFound";
 import PostCard from "./PostCard";
 
-function UserPosts({ author, posts }) {
+function UserPosts({ author, posts, setPosts }) {
   return (
     <>
       {posts.length === 0 ? (
         <NoDataFound message="No post found" />
       ) : (
-        posts.map((post) => <PostCard key={post._id} author={author} post={post} />)
+        posts.map((post) => <PostCard key={post._id} author={author} post={post} setPosts={setPosts} />)
       )}
     </>
   );

@@ -22,6 +22,7 @@ export const getUserPosts = (userIdentifier) => api.get(`/post/getUserPosts/${us
 export const getFeedPosts = ()=> api.get("/post/getFeedPosts");
 export const postLikeToggle = (postId)=> api.get(`/post/postLikeToggle/${postId}`);
 export const createPost = (data) => api.post("/post/createPost", data);
+export const deletePost = (postId) => api.get(`/post/deletePost/${postId}`)
 
 export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
 export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);

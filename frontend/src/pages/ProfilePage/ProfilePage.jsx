@@ -79,7 +79,7 @@ function UserProfilePage() {
 ) : postsError ? (
   <GlobalError error={postsError} />
 ) : userError ? "" : (
-  <UserPosts posts={posts} author={user} />
+  <UserPosts posts={posts} setPosts={setPosts} author={user} />
 )}
     </Screen>
   );

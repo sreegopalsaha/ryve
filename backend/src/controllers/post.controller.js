@@ -49,7 +49,6 @@ const deletePost = asyncHandler(async (req, res, next) => {
     const postId = req.params.postId;
 
     const post = await Post.findById(postId);
-    console.log(post);
     if (!post) throw new ApiError(404, "Post not found");
     const isOwner = post.author.toString() === user._id.toString();
 

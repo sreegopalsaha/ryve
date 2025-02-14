@@ -3,15 +3,17 @@ import { Heart, MessageCircle, MoreVertical, Share, Star } from "lucide-react";
 import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
-import { postLikeToggle } from "../../services/ApiServices";
+import { deletePost, postLikeToggle } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
+import Dropdown from "../molecules/DropDown";
 
-function PostCard({ post, author }) {
+function PostCard({ post, author, setPosts }) {
   const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
   const [likedBy, setLikedBy] = useState(post.likedBy);
   const [liked, setLiked] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (!currentUser || !post) return;
@@ -41,14 +43,47 @@ function PostCard({ post, author }) {
     }
   };
 
+  const handleDeleteClick = async () => {
+    try {
+      await deletePost(post._id);
+      setPosts((prev) => prev.filter((prevPost) => prevPost._id !== post._id));
+
+    } catch (error) {
+      console.log("Error while deleting post");
+    }
+  };
+
+  const dropdownItems = [
+    {
+      label: "Delete",
+      onClick: handleDeleteClick,
+      visible: author?._id === currentUser?._id,
+    },
+    {
+      label: "Edit",
+      onClick: () => {
+        navigate(`/post/${post._id}/edit`);
+      },
+      visible: author?._id === currentUser?._id,
+    },
+    {
+      label: "Report",
+      onClick: () => {
+        console.log("Report button clicked");
+      },
+      visible: author?._id !== currentUser?._id,
+    },
+  ];
+
   return (
     <Card className="w-full gap-4 max-w-[40rem]">
       {/* User Info */}
 
       <div className="cursor-pointer flex items-center justify-between gap-3 theme-text ">
         {/* left side */}
-        <div onClick={() => navigate(`/${author.username}`)}
-          className="flex cursor-pointer items-center gap-3"
+        <div
+          onClick={() => navigate(`/${author.username}`)}
+          className="flex cursor-pointer items-center gap-3 w-full"
         >
           <img
             src={author.profilePicture}
@@ -62,17 +97,26 @@ function PostCard({ post, author }) {
         </div>
 
         {/* right side */}
-        <div className="flex gap-2">
-        <p className="text-xs text-gray-400">
-          {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-        </p>
+        <div className="flex gap-2 w-full justify-end">
+          {isDropdownOpen && (
+            <Dropdown
+              isOpen={isDropdownOpen}
+              setIsOpen={setIsDropdownOpen}
+              items={dropdownItems}
+              postAutherId={post.author._id}
+            />
+          )}
 
-        <Button
-          onClick={() => {}}>
-          <MoreVertical size={20} />
-        </Button>
-
-
+          <p className="text-xs text-gray-400">
+            {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+          </p>
+          <Button
+            onClick={() => {
+              setIsDropdownOpen(true);
+            }}
+          >
+            <MoreVertical size={20} />
+          </Button>
         </div>
       </div>
 

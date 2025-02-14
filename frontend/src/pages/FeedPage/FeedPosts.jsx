@@ -2,7 +2,7 @@ import NoDataFound from "../../components/organisms/NoDataFound";
 import PostCard from "../../components/organisms/PostCard";
 import { UserSearch } from "lucide-react";
 
-function FeedPosts({ posts }) {
+function FeedPosts({ posts, setPosts }) {
   if (posts.length === 0) {
     return (
         <NoDataFound icon={UserSearch}
@@ -15,7 +15,7 @@ function FeedPosts({ posts }) {
   return (
     <>
       {posts.map((post) => (
-        <PostCard key={post._id} author={post.author} post={post} />
+        <PostCard key={post._id} author={post.author} post={post} setPosts={setPosts} />
       ))}
     </>
   );

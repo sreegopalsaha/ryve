@@ -36,7 +36,7 @@ function FeedPage() {
 
       {
 
-        postsLoading ? <PostsLoading /> : postsError ? <GlobalError error={postsError}/> : <FeedPosts posts={posts}/>
+        postsLoading ? <PostsLoading /> : postsError ? <GlobalError error={postsError}/> : <FeedPosts posts={posts} setPosts={setPosts}/>
 
       }
     </Screen>
