@@ -110,7 +110,8 @@ const getUserPosts = asyncHandler(async (req, res, next) => {
     const canAccess = !targetUser.isPrivateAccount || followStatus === "accepted";
     if (!canAccess) throw new ApiError(403, "Private Account");
 
-    const posts = await Post.find({ author: targetUser._id });
+    const posts = await Post.find({ author: targetUser._id })
+        .sort({ createdAt: -1 });
 
     res.status(200).json(new ApiResponse(200, posts, "Posts fetched successfully"));
 });
@@ -211,4 +212,22 @@ const updatePost = asyncHandler((req, res, next) => {
 
 });
 
-export { getFeedPosts, enhanceContent, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments };
+const searchUsers = asyncHandler(async (req, res, next) => {
+    const { searchQuery } = req.params;
+    if (!searchQuery) throw new ApiError(400, "Search term is required");
+
+    const users = await User.find({
+        $or: [
+            { fullname: { $regex: searchQuery, $options: "i" } },
+            { username: { $regex: searchQuery, $options: "i" } },
+            { location: { $regex: searchQuery, $options: "i" } },
+        ],
+    }).select("username fullname profilePicture");
+
+    if (!users) throw new ApiError(500, "Internal Server issue");
+
+    res.status(200).json(new ApiResponse(200, users, "Search results"));
+
+});
+
+export { getFeedPosts, enhanceContent, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments, searchUsers };

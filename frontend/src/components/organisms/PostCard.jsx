@@ -6,7 +6,7 @@ import { useCurrentUser } from "../../contexts/CurrentUserProvider";
 import { deletePost, postLikeToggle } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
-import Dropdown from "../molecules/DropDown";
+import Dropdown from "../molecules/Dropdown";
 
 function PostCard({ post, author, setPosts }) {
   const navigate = useNavigate();

@@ -10,6 +10,7 @@ import Applayout from "./layout/Applayout";
 import PrivateRoute from "./PrivateRoute";
 import UserProfilePage from "./pages/ProfilePage/ProfilePage";
 import FollowingFollowersPage from "./pages/FollowingFollowersPage";
+import SearchPage from "./pages/SearchPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -41,8 +42,11 @@ function App() {
         {
           path: ":userIdentifier/followers",
           element: <PrivateRoute element={<FollowingFollowersPage />} />,
-        }
-
+        },
+        {
+          path: "search",
+          element:  <PrivateRoute element={<SearchPage />}/>
+        },
       ],
     },
     {
