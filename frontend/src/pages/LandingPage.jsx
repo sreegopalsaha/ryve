@@ -1,56 +1,55 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/atoms/Button";
 import Container from "../components/atoms/Container";
-import Cookies from "js-cookie"
-import { useEffect } from "react";
+import Cookies from "js-cookie";
+import BrandingAnimation from "../components/molecules/BrandingAnimation";
 
 const LandingPage = () => {
-    const navigate = useNavigate();
-    useEffect(()=>{
-      const token = Cookies.get('token');
-      if(token) navigate("/");
-    },[]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (token) navigate("/");
+  }, []);
 
   return (
-    <>
-      <Container className="w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center theme-background">        
-        <h1 className="text-5xl sm:text-5xl md:text-8xl font-bold mb-8 tracking-tighter theme-text">
-          Welcome to Ryve
-        </h1>
-        
-        <p className="text-xl sm:text-2xl md:text-3xl mb-12 theme-text opacity-90">
-          Ryve: Build Bonds, Not Algorithms
-        </p>
-        
-        <div className="flex gap-4 items-center">
-          <Button
-            onClick={() => navigate("/login")}
-            className="theme-card theme-text px-6 py-3 rounded-lg hover:-translate-y-0.5 backdrop-blur-md
-                     border border-primary-light-border dark:border-primary-dark-border
-                     bg-opacity-95 hover:bg-opacity-100"
-          >
-            Login →
-          </Button>
+    <Container className="w-full h-full min-w-screen min-h-screen flex flex-col items-center justify-center theme-background px-6">
+      {/* Main Heading */}
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 tracking-tight theme-text text-center">
+        Welcome to Ryve
+      </h1>
 
-          <Button
-            onClick={() => navigate("/signup")}
-            className="theme-card theme-text px-6 py-3 rounded-lg hover:-translate-y-0.5 backdrop-blur-md
-                     border border-primary-light-border dark:border-primary-dark-border
-                     bg-opacity-95 hover:bg-opacity-100"
-          >
-            Sign Up →
-          </Button>
-        </div>
-        <a
-          href="https://github.com/sreegopalsaha/Ryve"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-16 theme-link animate-pulse"
+      {/* Branding Animation */}
+      <BrandingAnimation />
+
+      {/* Buttons */}
+      <div className="flex gap-4 mt-8">
+        <Button
+          onClick={() => navigate("/login")}
+          className="px-6 py-3 rounded-lg text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
         >
-          Learn more →
-        </a>
-      </Container>
-    </>
+          Login →
+        </Button>
+
+        <Button
+          onClick={() => navigate("/signup")}
+          className="px-6 py-3 rounded-lg text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+        >
+          Sign Up →
+        </Button>
+      </div>
+
+      {/* Learn More Link */}
+      <a
+        href="https://github.com/sreegopalsaha/Ryve"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-12 text-lg theme-link animate-pulse"
+      >
+        Learn more →
+      </a>
+    </Container>
   );
 };
 
