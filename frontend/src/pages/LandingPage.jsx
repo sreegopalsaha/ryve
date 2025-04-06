@@ -27,27 +27,31 @@ const LandingPage = () => {
       <div className="flex gap-4 mt-8">
         <Button
           onClick={() => navigate("/login")}
-          className="px-6 py-3 rounded-lg text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+          className="px-6 py-3 text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
         >
-          Login →
+          Login &rarr;
         </Button>
 
         <Button
           onClick={() => navigate("/signup")}
-          className="px-6 py-3 rounded-lg text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+          className="px-6 py-3 text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
         >
-          Sign Up →
+          Sign Up &rarr;
         </Button>
       </div>
 
       {/* Learn More Link */}
+
       <a
         href="https://github.com/sreegopalsaha/Ryve"
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-12 text-lg theme-link animate-pulse"
+        className="text-lg theme-link animate-pulse group mt-12"
       >
-        Learn more →
+        <span>Learn more</span>
+        <span className="transition-transform transform group-hover:translate-x-1 inline-block ml-1">
+          →
+        </span>
       </a>
     </Container>
   );

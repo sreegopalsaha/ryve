@@ -1,16 +1,23 @@
 import { useEffect, useRef, useMemo, useCallback } from "react";
 import { X } from "lucide-react";
+import Button from "../atoms/Button";
 
 const Dropdown = ({ items, isOpen, setIsOpen }) => {
   const dropdownRef = useRef(null);
 
-  const filteredItems = useMemo(() => items.filter((item) => item.visible), [items]);
+  const filteredItems = useMemo(
+    () => items.filter((item) => item.visible),
+    [items]
+  );
 
-  const handleClickOutside = useCallback((event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  }, [setIsOpen]);
+  const handleClickOutside = useCallback(
+    (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    },
+    [setIsOpen]
+  );
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -33,7 +40,7 @@ const Dropdown = ({ items, isOpen, setIsOpen }) => {
       <ul className="p-1">
         {filteredItems.map((item, index) => (
           <li key={index}>
-            <button
+            <Button
               onClick={() => {
                 item.onClick();
                 setIsOpen(false);
@@ -42,7 +49,7 @@ const Dropdown = ({ items, isOpen, setIsOpen }) => {
             >
               {item.icon && <span className="mr-2">{item.icon}</span>}
               {item.label}
-            </button>
+            </Button>
           </li>
         ))}
       </ul>

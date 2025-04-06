@@ -1,29 +1,30 @@
-import { LoaderCircle } from 'lucide-react';
-import React from 'react';
+import { LoaderCircle } from "lucide-react";
+import React from "react";
 
 const Button = ({
   children,
   onClick,
-  type = 'button',
-  className = '',
+  type = "button",
+  className = "",
   disabled = false,
   loading = false,
   ...rest
 }) => {
   const buttonClass = `
-    ${disabled || loading ? 'bg-gray-400 cursor-not-allowed' : ''} 
+    flex items-center justify-center rounded-lg transition-transform duration-200
+    ${(disabled || loading) ? "opacity-50 cursor-not-allowed" : ""} 
     ${className}`;
 
   return (
     <button
       onClick={onClick}
       type={type}
-      className={`flex items-center justify-center ${buttonClass}`}
+      className={buttonClass}
       disabled={disabled || loading}
       {...rest}
     >
       {loading ? (
-         <LoaderCircle className={"text-blue-500 animate-spin"}/>
+        <LoaderCircle className={"text-blue-500 animate-spin"} />
       ) : (
         children
       )}
