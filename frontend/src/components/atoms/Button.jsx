@@ -24,7 +24,7 @@ const Button = ({
       {...rest}
     >
       {loading ? (
-        <LoaderCircle className={"text-blue-500 animate-spin"} />
+        <LoaderCircle className={"text-blue-800 animate-spin"} />
       ) : (
         children
       )}

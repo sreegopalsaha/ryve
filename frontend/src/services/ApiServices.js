@@ -32,3 +32,11 @@ export const deletePost = (postId) => api.get(`/post/deletePost/${postId}`);
 export const enhanceContent = (data) => api.post("/post/enhanceContent", data);
 
 export const getLocation = (latitude, longitude) => axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+
+export const updateUserProfile = (formData) => api.put('/user/updateProfile', formData, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    },
+});
+
+export const togglePrivateAccount = () => api.put('/user/togglePrivateAccount');

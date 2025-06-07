@@ -15,7 +15,7 @@ function Input({ type = "text", className = "", placeholder = "", value, onChang
             <input 
                 id={id}
                 type={type} 
-                className={`border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${className}`} 
+                className={`theme-input border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 ${className}`} 
                 placeholder={placeholder} 
                 value={value} 
                 onChange={onChange} 

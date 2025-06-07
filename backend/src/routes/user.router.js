@@ -1,6 +1,6 @@
 import express from "express";
 import isLoggedIn from "../middlewares/isLoggedIn.middleware.js";
-import { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing } from "../controllers/user.controller.js";
+import { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing, updateUserProfile, togglePrivateAccount } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 import { searchUsers } from "../controllers/post.controller.js";
 const router = express.Router();
@@ -20,5 +20,9 @@ router.get("/getFollowers/:userIdentifier", isLoggedIn, getUserFollowers);
 router.get("/getFollowing/:userIdentifier", isLoggedIn, getUserFollowing);
 
 router.get("/searchUsers/:searchQuery", isLoggedIn, searchUsers);
+
+router.put("/updateProfile", isLoggedIn, upload.single("profilePicture"), updateUserProfile);
+
+router.put("/togglePrivateAccount", isLoggedIn, togglePrivateAccount);
 
 export default router;

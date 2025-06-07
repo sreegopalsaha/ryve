@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 
 export const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
@@ -9,11 +9,11 @@ const ThemeProvider = ({ children }) => {
         return savedTheme || 'dark';
     });
     
-    useEffect(() => {
-        const html = document.querySelector("html");
-        html.classList.remove("light", "dark");
-        html.classList.add(theme);
-        localStorage.setItem("theme", theme);
+    useLayoutEffect(() => {
+      const html = document.querySelector("html");
+      html.classList.remove("light", "dark");
+      html.classList.add(theme);
+      localStorage.setItem("theme", theme);
     }, [theme]);
 
     const toggleTheme = () => {

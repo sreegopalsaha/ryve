@@ -11,6 +11,7 @@ import PrivateRoute from "./PrivateRoute";
 import UserProfilePage from "./pages/ProfilePage/ProfilePage";
 import FollowingFollowersPage from "./pages/FollowingFollowersPage";
 import SearchPage from "./pages/SearchPage";
+import EditProfilePage from "./pages/EditProfilePage";
 
 function App() {
   const router = createBrowserRouter([
@@ -46,6 +47,10 @@ function App() {
         {
           path: "search",
           element:  <PrivateRoute element={<SearchPage />}/>
+        },
+        {
+          path: "edit-profile",
+          element: <PrivateRoute element={<EditProfilePage />} />,
         },
       ],
     },

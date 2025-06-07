@@ -106,8 +106,10 @@ const getUserPosts = asyncHandler(async (req, res, next) => {
 
     if (!targetUser) throw new ApiError(404, "User not found");
 
-    const followStatus = checkFollowStatus(currentUser._id, targetUser._id);
-    const canAccess = !targetUser.isPrivateAccount || followStatus === "accepted";
+    const isOwner = currentUser._id.toString() === targetUser._id.toString();
+    const followStatus = await checkFollowStatus(currentUser._id, targetUser._id);
+    const canAccess = isOwner || !targetUser.isPrivateAccount || followStatus === "accepted";
+    
     if (!canAccess) throw new ApiError(403, "Private Account");
 
     const posts = await Post.find({ author: targetUser._id })

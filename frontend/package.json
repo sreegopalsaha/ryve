@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",
     "js-cookie": "^3.0.5",

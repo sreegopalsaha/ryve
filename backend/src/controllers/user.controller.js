@@ -401,4 +401,71 @@ const getUserFollowing = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(200, followings, "Followings fetched successfully"));
 });
 
-export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing };
+const updateUserProfile = asyncHandler(async (req, res, next) => {
+    const { fullname, username, bio, location } = req.body;
+    const profilePicturePath = req.file?.path;
+
+    if (!fullname || !username) {
+        throw new ApiError(400, "Full name and username are required");
+    }
+
+    // Check if username is taken by another user
+    const existingUser = await User.findOne({ 
+        username: username.toLowerCase(),
+        _id: { $ne: req.user._id }
+    });
+    
+    if (existingUser) {
+        throw new ApiError(400, "Username is already taken");
+    }
+
+    const updateData = {
+        fullname,
+        username: username.toLowerCase(),
+        bio,
+        location
+    };
+
+    // Handle profile picture upload if provided
+    if (profilePicturePath) {
+        try {
+            const profilePicture = await uploadOnCloudinay(profilePicturePath);
+            if (!profilePicture) {
+                throw new ApiError(500, "Failed to upload profile picture");
+            }
+            updateData.profilePicture = profilePicture;
+        } catch (error) {
+            throw new ApiError(error.statusCode || 500, error.message);
+        }
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: updateData
+        },
+        { new: true }
+    ).select("-password -refreshToken");
+
+    if (!updatedUser) {
+        throw new ApiError(500, "Error while updating profile");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, updatedUser, "Profile updated successfully")
+    );
+});
+
+const togglePrivateAccount = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.user._id);
+    if (!user) throw new ApiError(404, "User not found");
+
+    user.isPrivateAccount = !user.isPrivateAccount;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(
+        new ApiResponse(200, { isPrivateAccount: user.isPrivateAccount }, "Account privacy updated successfully")
+    );
+});
+
+export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing, updateUserProfile, togglePrivateAccount };

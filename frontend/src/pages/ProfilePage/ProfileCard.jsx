@@ -84,6 +84,10 @@ function ProfileCard({ user }) {
     navigate(`/${user.username}/followers`);
   };
 
+  const handleEditClick = () => {
+    navigate("/edit-profile");
+  };
+
   return (
     <Card>
       <div className="flex flex-col items-center justify-center">
@@ -132,7 +136,7 @@ function ProfileCard({ user }) {
         {isOwner ? (
           <Button
             className="px-10 py-2 text-sm rounded-full bg-blue-500 text-white hover:bg-blue-600"
-            onClick={() => console.log("Edit Profile Clicked")}
+            onClick={handleEditClick}
           >
             Edit
           </Button>
