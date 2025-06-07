@@ -5,6 +5,7 @@ import cors from "cors";
 import globalErrorHandler from "./middlewares/globalErrorHandler.middleware.js";
 import userRouter from "./routes/user.router.js";
 import postRouter from "./routes/post.router.js";
+import notificationRouter from "./routes/notification.router.js";
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
@@ -22,6 +23,7 @@ app.get("/", (req, res)=>{
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
+app.use("/api/v1/notifications", notificationRouter);
 
 app.use(globalErrorHandler);
 export {app}

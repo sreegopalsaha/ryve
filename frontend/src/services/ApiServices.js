@@ -1,8 +1,8 @@
 import axios from "axios";
 import Cookies from 'js-cookie';
 
-
-const api = axios.create({
+// Create and export the api instance
+export const api = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
@@ -40,3 +40,9 @@ export const updateUserProfile = (formData) => api.put('/user/updateProfile', fo
 });
 
 export const togglePrivateAccount = () => api.put('/user/togglePrivateAccount');
+
+export const getNotifications = () => api.get('/notifications');
+export const markNotificationAsRead = (notificationId) => 
+  api.patch(`/notifications/${notificationId}/read`);
+export const markAllNotificationsAsRead = () => 
+  api.patch('/notifications/read-all');

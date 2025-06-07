@@ -6,6 +6,7 @@ import { uploadOnCloudinay } from "../utils/uploadOnCloudinary.js";
 import { Follow } from "../models/follow.model.js";
 import mongoose, { isValidObjectId } from "mongoose";
 import { checkFollowStatus } from "../utils/checkFollowStatus.js";
+import { createNotification } from "./notification.controller.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -220,8 +221,6 @@ const userFollowUnfollow = asyncHandler(async (req, res, next) => {
     const targetUserId = req.params.targetUserId;
     if (!targetUserId) throw new ApiError(400, "Target user id is required");
 
-    // here isFollowing can be a follow request or a accepted follow
-
     const isFollowing = await Follow.findOne({ follower: currentUserId, following: targetUserId });
     if (isFollowing) {
         await Follow.findOneAndDelete({ follower: currentUserId, following: targetUserId });
@@ -231,14 +230,18 @@ const userFollowUnfollow = asyncHandler(async (req, res, next) => {
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) throw new ApiError(400, "User not found");
 
-    const isPrivateAcoount = targetUser.isPrivateAccount;
+    const isPrivateAccount = targetUser.isPrivateAccount;
 
-    if (isPrivateAcoount) {
+    if (isPrivateAccount) {
         await Follow.create({ follower: currentUserId, following: targetUserId, status: "pending" });
+        // Create notification for follow request
+        await createNotification(targetUserId, currentUserId, "follow");
         return res.status(200).json(new ApiResponse(200, { status: "pending" }, "Follow request sent successfully"));
     }
 
     await Follow.create({ follower: currentUserId, following: targetUserId, status: "accepted" });
+    // Create notification for follow
+    await createNotification(targetUserId, currentUserId, "follow");
     return res.status(200).json(new ApiResponse(200, { status: "accepted" }, "User followed successfully"));
 });
 

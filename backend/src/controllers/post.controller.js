@@ -9,6 +9,7 @@ import { User } from "../models/user.model.js";
 import { Follow } from "../models/follow.model.js";
 import getAiResponse from "../utils/getAiResponse.js";
 import { json } from "express";
+import { createNotification } from "./notification.controller.js";
 
 const createPost = asyncHandler(async (req, res, next) => {
     const author = req.user?._id;
@@ -200,6 +201,10 @@ const postLikeToggle = asyncHandler(async (req, res, next) => {
         await Post.findByIdAndUpdate(postId, {
             $addToSet: { likedBy: currentUser._id },
         });
+        // Create notification for like
+        if (!isOwner) {
+            await createNotification(post.author, currentUser._id, "like", postId);
+        }
         message = "Successfully liked";
     }
 

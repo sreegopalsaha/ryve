@@ -2,9 +2,31 @@ import { Home, MessageCircle, Bell, User, Compass, Search, TrendingUpIcon, UserP
 import { NavLink } from "react-router-dom";
 import Screen from "../components/molecules/Screen";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
+import { useEffect, useState } from 'react';
+import { getNotifications } from '../services/ApiServices';
 
 function Navbar() {
   const {currentUser} = useCurrentUser();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await getNotifications();
+        const unread = response.data.data.filter(n => !n.read).length;
+        setUnreadCount(unread);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    if (currentUser) {
+      fetchNotifications();
+      // Set up polling for new notifications
+      const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [currentUser]);
 
     const sidebarItems = [
       { name: "Home", slug: "/", icon: Home },
