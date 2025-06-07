@@ -1,22 +1,25 @@
+import React from "react";
 import UserCard from "../molecules/UserCard";
 import NoDataFound from "./NoDataFound";
+import { Users } from "lucide-react";
 
-function UserList({ userList, title }) {
+function UserList({ userList, onFollowRequest }) {
+  if (!userList || userList.length === 0) {
+    return (
+      <NoDataFound
+        icon={Users}
+        message="No users found"
+        subMessage="Try searching for different users"
+      />
+    );
+  }
+
   return (
-    <>
-      {userList.length === 0 ? (
-        <NoDataFound message="No User Found" />
-      ) : (
-        <div className="w-full max-w-full p-4">
-          {title && <h2 className="text-xl font-semibold mb-4">{title}</h2>}{" "}
-          <div className="flex flex-col gap-3">
-            {userList.map((user) => (
-              <UserCard key={user._id} user={user} />
-            ))}{" "}
-          </div>
-        </div>
-      )}
-    </>
+    <div className="space-y-3">
+      {userList.map((user) => (
+        <UserCard key={user._id} user={user} onFollowRequest={onFollowRequest} />
+      ))}
+    </div>
   );
 }
 

@@ -459,16 +459,132 @@ const updateUserProfile = asyncHandler(async (req, res, next) => {
     );
 });
 
-const togglePrivateAccount = asyncHandler(async (req, res, next) => {
-    const user = await User.findById(req.user._id);
-    if (!user) throw new ApiError(404, "User not found");
+const togglePrivateAccount = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    const { isPrivate } = req.body;
 
-    user.isPrivateAccount = !user.isPrivateAccount;
-    await user.save({ validateBeforeSave: false });
+    if (typeof isPrivate !== "boolean") {
+        throw new ApiError(400, "isPrivate must be a boolean");
+    }
 
-    return res.status(200).json(
-        new ApiResponse(200, { isPrivateAccount: user.isPrivateAccount }, "Account privacy updated successfully")
-    );
+    const user = await User.findById(currentUserId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // If changing from private to public, accept all pending requests
+    if (user.isPrivateAccount && !isPrivate) {
+        const pendingRequests = await Follow.find({
+            following: currentUserId,
+            status: "pending"
+        });
+
+        // Accept all pending requests
+        await Follow.updateMany(
+            { following: currentUserId, status: "pending" },
+            { status: "accepted" }
+        );
+
+        // Create notifications for all accepted requests
+        for (const request of pendingRequests) {
+            await createNotification(request.follower, currentUserId, "follow_accepted");
+        }
+    }
+
+    user.isPrivateAccount = isPrivate;
+    await user.save();
+
+    res.status(200).json(new ApiResponse(200, user, "Profile privacy updated successfully"));
 });
 
-export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing, updateUserProfile, togglePrivateAccount };
+const getFollowRequests = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    
+    const pipeline = [
+        {
+            $match: {
+                following: currentUserId,
+                status: "pending"
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "follower",
+                foreignField: "_id",
+                as: "followerDetails"
+            }
+        },
+        {
+            $unwind: "$followerDetails"
+        },
+        {
+            $project: {
+                _id: 1,
+                createdAt: 1,
+                follower: {
+                    _id: "$followerDetails._id",
+                    username: "$followerDetails.username",
+                    fullname: "$followerDetails.fullname",
+                    profilePicture: "$followerDetails.profilePicture"
+                }
+            }
+        }
+    ];
+
+    const requests = await Follow.aggregate(pipeline);
+    
+    res.status(200).json(new ApiResponse(200, requests, "Follow requests fetched successfully"));
+});
+
+const handleFollowRequest = asyncHandler(async (req, res) => {
+    const { requestId, action } = req.body;
+    const currentUserId = req.user._id;
+
+    // Validate input
+    if (!requestId || !action) {
+        throw new ApiError(400, "Request ID and action are required");
+    }
+
+    if (!["accept", "reject"].includes(action)) {
+        throw new ApiError(400, "Invalid action. Must be 'accept' or 'reject'");
+    }
+
+    // Find the follow request
+    const request = await Follow.findOne({
+        _id: requestId,
+        following: currentUserId,
+        status: "pending"
+    });
+
+    if (!request) {
+        throw new ApiError(404, "Follow request not found");
+    }
+
+    // Handle the request
+    if (action === "accept") {
+        request.status = "accepted";
+        await request.save();
+        // await createNotification(request.follower, currentUserId, "follow_accepted");
+        return res.status(200).json(new ApiResponse(200, { status: "accepted" }, "Follow request accepted"));
+    } else {
+        await Follow.deleteOne({ _id: requestId });
+        return res.status(200).json(new ApiResponse(200, { status: "rejected" }, "Follow request rejected"));
+    }
+});
+
+export {
+    userRegister,
+    userLogin,
+    getCurrentUser,
+    getUserProfile,
+    updateAccountDetails,
+    changeCurrentPassword,
+    userFollowUnfollow,
+    getUserFollowers,
+    getUserFollowing,
+    updateUserProfile,
+    togglePrivateAccount,
+    getFollowRequests,
+    handleFollowRequest
+};

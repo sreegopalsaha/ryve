@@ -3,11 +3,12 @@ import { NavLink } from "react-router-dom";
 import Screen from "../components/molecules/Screen";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
 import { useEffect, useState } from 'react';
-import { getNotifications } from '../services/ApiServices';
+import { getNotifications, getFollowRequests } from '../services/ApiServices';
 
 function Navbar() {
   const {currentUser} = useCurrentUser();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingRequests, setPendingRequests] = useState(0);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -20,22 +21,41 @@ function Navbar() {
       }
     };
 
+    const fetchFollowRequests = async () => {
+      try {
+        const response = await getFollowRequests();
+        setPendingRequests(response.data.data.length);
+      } catch (error) {
+        console.error('Error fetching follow requests:', error);
+      }
+    };
+
     if (currentUser) {
       fetchNotifications();
-      // Set up polling for new notifications
-      const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
+      if (currentUser.isPrivateAccount) {
+        fetchFollowRequests();
+      }
+      // Set up polling for new notifications and requests
+      const interval = setInterval(() => {
+        fetchNotifications();
+        if (currentUser.isPrivateAccount) {
+          fetchFollowRequests();
+        }
+      }, 30000); // Poll every 30 seconds
       return () => clearInterval(interval);
     }
   }, [currentUser]);
 
     const sidebarItems = [
       { name: "Home", slug: "/", icon: Home },
-      { name: "Notifications", slug: "/notifications", icon: Bell },
+      { name: "Notifications", slug: "/notifications", icon: Bell, badge: unreadCount },
       { name: "Messages", slug: "/messages", icon: MessageCircle },
       { name: "Search", slug: "/search", icon: Search },
       { name: "Explore", slug: "/explore", icon: Compass },
       { name: "Trending", slug: "/trending", icon: TrendingUpIcon },
-      { name: "Follow Requests", slug: "/follow-requests", icon: UserPlus },
+      ...(currentUser?.isPrivateAccount ? [
+        { name: "Follow Requests", slug: "/follow-requests", icon: UserPlus, badge: pendingRequests }
+      ] : []),
       { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
       { name: "Help", slug: "/Help", icon: HelpCircleIcon },
       { name: "Settings", slug: "/settings", icon: Settings },
@@ -44,8 +64,11 @@ function Navbar() {
     const mobileNavItems = [
         { name: "Home", slug: "/", icon: Home },
         { name: "Search", slug: "/search", icon: Search },
-        { name: "Notifications", slug: "/notifications", icon: Bell },
+        { name: "Notifications", slug: "/notifications", icon: Bell, badge: unreadCount },
         { name: "Messages", slug: "/messages", icon: MessageCircle },
+        ...(currentUser?.isPrivateAccount ? [
+          { name: "Follow Requests", slug: "/follow-requests", icon: UserPlus, badge: pendingRequests }
+        ] : []),
         { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
     ];
 
@@ -70,7 +93,14 @@ function Navbar() {
           `
                 }
               >
-                <item.icon className="w-6 h-6" />
+                <div className="relative">
+                  <item.icon className="w-6 h-6" />
+                  {item.badge > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
                 <span>{item.name}</span>
               </NavLink>
             ))}
@@ -87,7 +117,14 @@ function Navbar() {
               ${!currentUser ? "pointer-events-none opacity-50" : ""}
 `}
             >
-              <item.icon className="w-6 h-6" />
+              <div className="relative">
+                <item.icon className="w-6 h-6" />
+                {item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
             </NavLink>
           ))}
         </div>

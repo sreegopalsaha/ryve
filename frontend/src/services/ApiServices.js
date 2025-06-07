@@ -46,3 +46,10 @@ export const markNotificationAsRead = (notificationId) =>
   api.patch(`/notifications/${notificationId}/read`);
 export const markAllNotificationsAsRead = () => 
   api.patch('/notifications/read-all');
+
+// Add follow requests endpoints
+export const getFollowRequests = () => api.get('/user/follow-requests');
+export const handleFollowRequest = (requestId, action) => {
+    console.log('Sending follow request:', { requestId, action });
+    return api.post('/user/handle-follow-request', { requestId, action });
+};

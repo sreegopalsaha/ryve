@@ -12,6 +12,7 @@ import UserProfilePage from "./pages/ProfilePage/ProfilePage";
 import FollowingFollowersPage from "./pages/FollowingFollowersPage";
 import SearchPage from "./pages/SearchPage";
 import EditProfilePage from "./pages/EditProfilePage";
+import FollowRequestsPage from "./pages/FollowRequestsPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -30,7 +31,18 @@ function App() {
         {
           path: "messages",
           element: <PrivateRoute element={<MessagesPage/>}/>
-
+        },
+        {
+          path: "follow-requests",
+          element: <PrivateRoute element={<FollowRequestsPage />} />,
+        },
+        {
+          path: "search",
+          element:  <PrivateRoute element={<SearchPage />}/>
+        },
+        {
+          path: "edit-profile",
+          element: <PrivateRoute element={<EditProfilePage />} />,
         },
         {
           path: ":userIdentifier",
@@ -43,14 +55,6 @@ function App() {
         {
           path: ":userIdentifier/followers",
           element: <PrivateRoute element={<FollowingFollowersPage />} />,
-        },
-        {
-          path: "search",
-          element:  <PrivateRoute element={<SearchPage />}/>
-        },
-        {
-          path: "edit-profile",
-          element: <PrivateRoute element={<EditProfilePage />} />,
         },
       ],
     },
