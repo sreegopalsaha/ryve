@@ -11,6 +11,7 @@ import PrivateRoute from "./PrivateRoute";
 import UserProfilePage from "./pages/ProfilePage/ProfilePage";
 import FollowingFollowersPage from "./pages/FollowingFollowersPage";
 import SearchPage from "./pages/SearchPage";
+import FollowRequestsPage from "./pages/FollowRequestsPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -25,6 +26,10 @@ function App() {
         {
           path: "notifications",
           element: <PrivateRoute element={<NotificationsPage/>}/>
+        },
+        {
+          path: "follow-requests",
+          element: <PrivateRoute element={<FollowRequestsPage/>}/>
         },
         {
           path: "messages",

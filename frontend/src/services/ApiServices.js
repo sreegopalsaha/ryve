@@ -23,6 +23,8 @@ export const searchUsers = (searchQuery)=> api.get(`user/searchUsers/${searchQue
 export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
 export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);
 export const getFollowers = (userIdentifier) => api.get(`/user/getfollowers/${userIdentifier}`);
+export const getFollowRequests = () => api.get('/user/follow-requests');
+export const handleFollowRequest = (requestId, action) => api.post('/user/handle-follow-request', { requestId, action });
 
 export const getUserPosts = (userIdentifier) => api.get(`/post/getUserPosts/${userIdentifier}`);
 export const getFeedPosts = ()=> api.get("/post/getFeedPosts");

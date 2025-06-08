@@ -3,15 +3,17 @@ import { NavLink } from "react-router-dom";
 import Screen from "../components/molecules/Screen";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
 import { useEffect, useState } from "react";
-import { getNotifications } from "../services/ApiServices";
+import { getNotifications, getFollowRequests } from "../services/ApiServices";
 
 function Navbar() {
   const { currentUser } = useCurrentUser();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingRequests, setPendingRequests] = useState(0);
 
   useEffect(() => {
     if (!currentUser) {
       setUnreadCount(0);
+      setPendingRequests(0);
       return;
     }
 
@@ -26,8 +28,27 @@ function Navbar() {
       }
     };
 
+    const fetchFollowRequestsCount = async () => {
+      if (!currentUser?.isPrivateAccount) {
+        setPendingRequests(0);
+        return;
+      }
+      try {
+        const res = await getFollowRequests();
+        const requests = res?.data?.data || [];
+        setPendingRequests(requests.length);
+      } catch (error) {
+        console.error("Error fetching follow requests count:", error);
+      }
+    };
+
     fetchNotificationCount();
-    const interval = setInterval(fetchNotificationCount, 30000);
+    fetchFollowRequestsCount();
+
+    const interval = setInterval(() => {
+      fetchNotificationCount();
+      fetchFollowRequestsCount();
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [currentUser]);
@@ -39,7 +60,16 @@ function Navbar() {
     { name: "Search", slug: "/search", icon: Search },
     { name: "Explore", slug: "/explore", icon: Compass },
     { name: "Trending", slug: "/trending", icon: TrendingUpIcon },
-    { name: "Follow Requests", slug: "/follow-requests", icon: UserPlus },
+    ...(currentUser?.isPrivateAccount
+      ? [
+          {
+            name: "Follow Requests",
+            slug: "/follow-requests",
+            icon: UserPlus,
+            badge: pendingRequests,
+          },
+        ]
+      : []),
     { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
     { name: "Help", slug: "/Help", icon: HelpCircleIcon },
     { name: "Settings", slug: "/settings", icon: Settings },
@@ -49,6 +79,16 @@ function Navbar() {
     { name: "Home", slug: "/", icon: Home },
     { name: "Search", slug: "/search", icon: Search },
     { name: "Notifications", slug: "/notifications", icon: Bell, badge: unreadCount },
+    ...(currentUser?.isPrivateAccount
+      ? [
+          {
+            name: "Follow Requests",
+            slug: "/follow-requests",
+            icon: UserPlus,
+            badge: pendingRequests,
+          },
+        ]
+      : []),
     { name: "Messages", slug: "/messages", icon: MessageCircle },
     { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
   ];
