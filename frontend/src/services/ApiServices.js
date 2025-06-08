@@ -26,6 +26,7 @@ export const getFollowers = (userIdentifier) => api.get(`/user/getfollowers/${us
 
 export const getUserPosts = (userIdentifier) => api.get(`/post/getUserPosts/${userIdentifier}`);
 export const getFeedPosts = ()=> api.get("/post/getFeedPosts");
+export const getPost = (postId) => api.get(`/post/get/${postId}`);
 export const postLikeToggle = (postId)=> api.get(`/post/postLikeToggle/${postId}`);
 export const starPostToggle = (postId) => api.get(`/post/starPostToggle/${postId}`);
 export const getStarredPosts = () => api.get('/post/starred');

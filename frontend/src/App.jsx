@@ -17,6 +17,7 @@ import SettingsPage from "./pages/SettingsPage";
 import TrendingPage from "./pages/TrendingPage";
 import ChatPage from "./pages/ChatPage";
 import StarredPostsPage from "./pages/StarredPostsPage";
+import PostPage from "./pages/PostPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -75,6 +76,10 @@ function App() {
         {
           path: "/starred",
           element: <StarredPostsPage />,
+        },
+        {
+          path: "/post/:postId",
+          element: <PostPage />
         },
       ],
     },
