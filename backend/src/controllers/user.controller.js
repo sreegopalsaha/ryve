@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { Notification } from "../models/notification.model.js";
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
@@ -239,6 +240,15 @@ const userFollowUnfollow = asyncHandler(async (req, res, next) => {
     }
 
     await Follow.create({ follower: currentUserId, following: targetUserId, status: "accepted" });
+
+    if (currentUserId.toString() !== targetUserId.toString()) {
+        await Notification.create({
+            sender: currentUserId,
+            recipient: targetUserId,
+            type: "follow",
+        });
+    }
+
     return res.status(200).json(new ApiResponse(200, { status: "accepted" }, "User followed successfully"));
 });
 

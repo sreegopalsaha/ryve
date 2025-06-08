@@ -1,4 +1,5 @@
 import { Post } from "../models/post.model.js";
+import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
@@ -199,6 +200,16 @@ const postLikeToggle = asyncHandler(async (req, res, next) => {
             $addToSet: { likedBy: currentUser._id },
         });
         message = "Successfully liked";
+
+        const authorId = post.author._id || post.author;
+        if (authorId.toString() !== currentUser._id.toString()) {
+            await Notification.create({
+                recipient: authorId,
+                sender: currentUser._id,
+                type: "like",
+                post: postId,
+            });
+        }
     }
 
     res.status(200).json(new ApiResponse(200, message));

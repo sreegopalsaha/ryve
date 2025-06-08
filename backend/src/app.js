@@ -5,23 +5,27 @@ import cors from "cors";
 import globalErrorHandler from "./middlewares/globalErrorHandler.middleware.js";
 import userRouter from "./routes/user.router.js";
 import postRouter from "./routes/post.router.js";
+import notificationRouter from "./routes/notification.router.js";
 
-app.use(cors({
+app.use(
+  cors({
     origin: process.env.CORS_ORIGIN,
-    credentials: true
-}));
+    credentials: true,
+  }),
+);
 
-app.use(express.json({limit: "16kb"}));
-app.use(express.urlencoded({extended: true, limit: "16kb"}));
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
 app.use(express.static("public"));
 
-app.get("/", (req, res)=>{
-    res.send("API IS RUNNING");
+app.get("/", (req, res) => {
+  res.send("API IS RUNNING");
 });
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/post", postRouter);
+app.use("/api/v1/notifications", notificationRouter);
 
 app.use(globalErrorHandler);
-export {app}
+export { app };

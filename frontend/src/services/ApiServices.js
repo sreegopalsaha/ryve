@@ -31,4 +31,8 @@ export const createPost = (data) => api.post("/post/createPost", data);
 export const deletePost = (postId) => api.get(`/post/deletePost/${postId}`);
 export const enhanceContent = (data) => api.post("/post/enhanceContent", data);
 
+export const getNotifications = () => api.get('/notifications');
+export const markNotificationAsRead = (notificationId) => api.patch(`/notifications/${notificationId}/read`);
+export const markAllNotificationsAsRead = () => api.patch('/notifications/read-all');
+
 export const getLocation = (latitude, longitude) => axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
