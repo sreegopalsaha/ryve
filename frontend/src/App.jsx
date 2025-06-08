@@ -14,6 +14,8 @@ import SearchPage from "./pages/SearchPage";
 import FollowRequestsPage from "./pages/FollowRequestsPage";
 import SettingsPage from "./pages/SettingsPage";
 import EditProfilePage from "./pages/EditProfilePage";
+import StarredPostsPage from "./pages/StarredPostsPage";
+import PostPage from "./pages/PostPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -28,6 +30,14 @@ function App() {
         {
           path: "notifications",
           element: <PrivateRoute element={<NotificationsPage/>}/>
+        },
+        {
+          path: "starred",
+          element: <PrivateRoute element={<StarredPostsPage/>}/>
+        },
+        {
+          path: "post/:postId",
+          element: <PrivateRoute element={<PostPage/>}/>
         },
         {
           path: "follow-requests",

@@ -3,7 +3,7 @@ import { Heart, MessageCircle, MoreVertical, Share, Star } from "lucide-react";
 import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
-import { deletePost, postLikeToggle } from "../../services/ApiServices";
+import { deletePost, postLikeToggle, starPostToggle } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import Dropdown from "../molecules/Dropdown";
@@ -11,14 +11,17 @@ import Dropdown from "../molecules/Dropdown";
 function PostCard({ post, author, setPosts }) {
   const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
-  const [likedBy, setLikedBy] = useState(post.likedBy);
+  const [likedBy, setLikedBy] = useState(post.likedBy || []);
   const [liked, setLiked] = useState(false);
+  const [starredBy, setStarredBy] = useState(post.starredBy || []);
+  const [starred, setStarred] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (!currentUser || !post) return;
     setLiked(likedBy.includes(currentUser._id));
-  }, [currentUser, post]);
+    setStarred(starredBy.includes(currentUser._id));
+  }, [currentUser, post, likedBy, starredBy]);
 
   const handleLikeToggle = async () => {
     if (!currentUser) return;
@@ -43,11 +46,58 @@ function PostCard({ post, author, setPosts }) {
     }
   };
 
+  const handleStarToggle = async () => {
+    if (!currentUser) return;
+
+    const prevStarredBy = [...starredBy];
+    let newStarredBy;
+
+    if (starred) {
+      newStarredBy = prevStarredBy.filter((userId) => userId !== currentUser._id);
+    } else {
+      newStarredBy = [...prevStarredBy, currentUser._id];
+    }
+
+    setStarredBy(newStarredBy);
+    setStarred(!starred);
+
+    try {
+      await starPostToggle(post._id);
+    } catch (error) {
+      setStarredBy(prevStarredBy);
+      setStarred(starred);
+    }
+  };
+
+  const handleShare = async () => {
+    const postUrl = `${window.location.origin}/post/${post._id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Ryve",
+          text: post.content || "Check out this post on Ryve",
+          url: postUrl,
+        });
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Error sharing post:", error);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(postUrl);
+      } catch (error) {
+        console.error("Error copying link to clipboard:", error);
+      }
+    }
+  };
+
   const handleDeleteClick = async () => {
     try {
       await deletePost(post._id);
-      setPosts((prev) => prev.filter((prevPost) => prevPost._id !== post._id));
-
+      if (setPosts) {
+        setPosts((prev) => prev.filter((prevPost) => prevPost._id !== post._id));
+      }
     } catch (error) {
       console.log("Error while deleting post");
     }
@@ -75,6 +125,8 @@ function PostCard({ post, author, setPosts }) {
     },
   ];
 
+  const postAuthorId = post.author?._id || post.author || author?._id;
+
   return (
     <Card className="w-full gap-4 max-w-[40rem]">
       {/* User Info */}
@@ -82,17 +134,17 @@ function PostCard({ post, author, setPosts }) {
       <div className="cursor-pointer flex items-center justify-between gap-3 theme-text ">
         {/* left side */}
         <div
-          onClick={() => navigate(`/${author.username}`)}
+          onClick={() => author?.username && navigate(`/${author.username}`)}
           className="flex cursor-pointer items-center gap-3 w-full"
         >
           <img
-            src={author.profilePicture}
-            alt={author.fullname}
+            src={author?.profilePicture || "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"}
+            alt={author?.fullname || "User"}
             className="w-10 h-10 rounded-full "
           />
           <div>
-            <p className="font-medium">{author.fullname}</p>
-            <p className="text-sm text-gray-500">@{author.username}</p>
+            <p className="font-medium">{author?.fullname}</p>
+            <p className="text-sm text-gray-500">@{author?.username}</p>
           </div>
         </div>
 
@@ -103,12 +155,12 @@ function PostCard({ post, author, setPosts }) {
               isOpen={isDropdownOpen}
               setIsOpen={setIsDropdownOpen}
               items={dropdownItems}
-              postAutherId={post.author._id}
+              postAutherId={postAuthorId}
             />
           )}
 
           <p className="text-xs text-gray-400">
-            {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+            {post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true }) : ""}
           </p>
           <Button
             onClick={() => {
@@ -140,7 +192,7 @@ function PostCard({ post, author, setPosts }) {
           className={`gap-1 ${liked ? "text-red-500" : "hover:text-red-500"}`}
           onClick={handleLikeToggle}
         >
-          <Heart size={18} />
+          <Heart size={18} className={liked ? "fill-red-500" : ""} />
           <span>{likedBy.length}</span>
         </Button>
 
@@ -149,12 +201,16 @@ function PostCard({ post, author, setPosts }) {
           <span>{post.comments?.length || 0}</span>
         </Button>
 
-        <Button className="gap-1 hover:text-blue-500">
+        <Button className="gap-1 hover:text-blue-500" onClick={handleShare}>
           <Share size={18} />
         </Button>
 
-        <Button className="gap-1 hover:text-green-500">
-          <Star size={18} />
+        <Button
+          className={`gap-1 ${starred ? "text-yellow-500" : "hover:text-yellow-500"}`}
+          onClick={handleStarToggle}
+        >
+          <Star size={18} className={starred ? "fill-yellow-500" : ""} />
+          <span>{starredBy.length}</span>
         </Button>
       </div>
     </Card>

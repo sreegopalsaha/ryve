@@ -31,7 +31,10 @@ export const handleFollowRequest = (requestId, action) => api.post('/user/handle
 
 export const getUserPosts = (userIdentifier) => api.get(`/post/getUserPosts/${userIdentifier}`);
 export const getFeedPosts = ()=> api.get("/post/getFeedPosts");
+export const getStarredPosts = () => api.get('/post/starred');
+export const getPost = (postId) => api.get(`/post/get/${postId}`);
 export const postLikeToggle = (postId)=> api.get(`/post/postLikeToggle/${postId}`);
+export const starPostToggle = (postId) => api.get(`/post/starPostToggle/${postId}`);
 export const createPost = (data) => api.post("/post/createPost", data);
 export const deletePost = (postId) => api.get(`/post/deletePost/${postId}`);
 export const enhanceContent = (data) => api.post("/post/enhanceContent", data);
