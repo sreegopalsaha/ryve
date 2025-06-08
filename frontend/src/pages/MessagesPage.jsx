@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import UserCard from '../components/molecules/UserCard';
 import NoDataFound from '../components/organisms/NoDataFound';
 import { MessageCircle } from 'lucide-react';
+import ChatMessageCard from '../components/molecules/ChatMessageCard';
 
 function MessagesPage() {
   const { currentUser } = useCurrentUser();
@@ -65,14 +66,7 @@ function MessagesPage() {
         ) : (
           <div className="space-y-3">
             {chatRooms.map((room) => (
-              <Link to={`/messages/${room.otherParticipant.username}`} key={room._id} className="block">
-                <UserCard 
-                  user={room.otherParticipant} 
-                  showFollowButton={false}
-                  extraContent={room.lastMessage ? 
-                    <p className="text-sm text-gray-500">{room.lastMessage.content}</p> : ""}
-                />
-              </Link>
+              <ChatMessageCard key={room._id} room={room} />
             ))}
           </div>
         )}

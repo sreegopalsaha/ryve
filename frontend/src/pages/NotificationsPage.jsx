@@ -78,7 +78,7 @@ function NotificationsPage() {
   }
 
   return (
-    <Screen>
+    <Screen middleScreen>
       <div className="max-w-2xl mx-auto w-full">
         <h1 className="text-2xl font-bold mb-4">Notifications</h1>
         <div className="space-y-4">
