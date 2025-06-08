@@ -15,6 +15,7 @@ import EditProfilePage from "./pages/EditProfilePage";
 import FollowRequestsPage from "./pages/FollowRequestsPage";
 import SettingsPage from "./pages/SettingsPage";
 import TrendingPage from "./pages/TrendingPage";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -33,6 +34,10 @@ function App() {
         {
           path: "messages",
           element: <PrivateRoute element={<MessagesPage/>}/>
+        },
+        {
+          path: "messages/:userIdentifier",
+          element: <PrivateRoute element={<ChatPage/>}/>
         },
         {
           path: "follow-requests",

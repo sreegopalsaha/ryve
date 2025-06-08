@@ -1,4 +1,4 @@
-import { Home, MessageCircle, Bell, User, Compass, Search, TrendingUpIcon, UserPlus, Settings, HelpCircleIcon } from "lucide-react";
+import { Home, MessageCircle, Bell, User, Search, TrendingUpIcon, UserPlus, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import Screen from "../components/molecules/Screen";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
@@ -51,13 +51,11 @@ function Navbar() {
       { name: "Notifications", slug: "/notifications", icon: Bell, badge: unreadCount },
       { name: "Messages", slug: "/messages", icon: MessageCircle },
       { name: "Search", slug: "/search", icon: Search },
-      { name: "Explore", slug: "/explore", icon: Compass },
       { name: "Trending", slug: "/trending", icon: TrendingUpIcon },
       ...(currentUser?.isPrivateAccount ? [
         { name: "Follow Requests", slug: "/follow-requests", icon: UserPlus, badge: pendingRequests }
       ] : []),
       { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
-      { name: "Help", slug: "/Help", icon: HelpCircleIcon },
       { name: "Settings", slug: "/settings", icon: Settings },
   ];
 

@@ -61,3 +61,9 @@ export const getTrendingUsers = (type = 'rising') => {
 export const getSuggestedUsers = (limit = 5) => {
     return api.get(`/user/suggested?limit=${limit}`);
 };
+
+// New Chat Endpoints
+export const createOrGetChatRoom = (userIdentifier) => api.post(`/messages/${userIdentifier}`);
+export const sendMessage = (data) => api.post('/messages/send', data);
+export const getChatMessages = (chatRoomId) => api.get(`/messages/messages/${chatRoomId}`);
+export const getAllChatRooms = () => api.get('/messages/all');
