@@ -573,7 +573,7 @@ const handleFollowRequest = asyncHandler(async (req, res) => {
     }
 });
 
-const getTrendingUsers = asyncHandler(async (req, res) => {
+const getTrendingUsers = asyncHandler(async (req, res, next) => {
     const { type = 'rising' } = req.query;
     const currentUserId = req.user._id;
 
@@ -581,7 +581,7 @@ const getTrendingUsers = asyncHandler(async (req, res) => {
 
     switch (type) {
         case 'rising':
-            // Users with most followers in the last 7 days
+            // Users who joined recently and have good engagement
             pipeline = [
                 {
                     $lookup: {
@@ -593,94 +593,111 @@ const getTrendingUsers = asyncHandler(async (req, res) => {
                                     $expr: {
                                         $and: [
                                             { $eq: ["$following", "$$userId"] },
-                                            { $eq: ["$status", "accepted"] },
-                                            { $gte: ["$createdAt", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] }
+                                            { $eq: ["$status", "accepted"] }
                                         ]
                                     }
                                 }
                             }
                         ],
-                        as: "recentFollowers"
+                        as: "followers"
                     }
                 },
                 {
-                    $project: {
-                        _id: 1,
-                        username: 1,
-                        fullname: 1,
-                        profilePicture: 1,
-                        bio: 1,
-                        location: 1,
-                        isPrivateAccount: 1,
-                        createdAt: 1,
-                        recentFollowers: { $size: "$recentFollowers" }
+                    $addFields: {
+                        followerCount: { $size: "$followers" },
+                        daysSinceJoined: {
+                            $divide: [
+                                { $subtract: [new Date(), "$createdAt"] },
+                                1000 * 60 * 60 * 24
+                            ]
+                        }
                     }
                 },
-                { $sort: { recentFollowers: -1 } },
-                { $limit: 10 }
+                {
+                    $match: {
+                        daysSinceJoined: { $lte: 30 } // Within last 30 days
+                    }
+                },
+                {
+                    $sort: {
+                        followerCount: -1,
+                        daysSinceJoined: 1
+                    }
+                },
+                { $limit: 20 }
             ];
             break;
 
-        case 'most_liked':
-            // Users whose posts have received the most likes
+        case 'trending':
+            // Users with most recent activity and engagement
             pipeline = [
                 {
                     $lookup: {
-                        from: "posts",
-                        localField: "_id",
-                        foreignField: "author",
-                        as: "posts"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "likes",
-                        let: { postIds: "$posts._id" },
+                        from: "follows",
+                        let: { userId: "$_id" },
                         pipeline: [
                             {
                                 $match: {
-                                    $expr: { $in: ["$post", "$$postIds"] }
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$following", "$$userId"] },
+                                            { $eq: ["$status", "accepted"] }
+                                        ]
+                                    }
                                 }
                             }
                         ],
-                        as: "likes"
+                        as: "followers"
                     }
                 },
                 {
-                    $project: {
-                        _id: 1,
-                        username: 1,
-                        fullname: 1,
-                        profilePicture: 1,
-                        bio: 1,
-                        location: 1,
-                        isPrivateAccount: 1,
-                        createdAt: 1,
-                        totalLikes: { $size: "$likes" }
+                    $addFields: {
+                        followerCount: { $size: "$followers" }
                     }
                 },
-                { $sort: { totalLikes: -1 } },
-                { $limit: 10 }
+                {
+                    $sort: {
+                        followerCount: -1,
+                        updatedAt: -1
+                    }
+                },
+                { $limit: 20 }
             ];
             break;
 
-        case 'new':
-            // Most recent users
+        case 'popular':
+            // Users with most followers
             pipeline = [
                 {
-                    $project: {
-                        _id: 1,
-                        username: 1,
-                        fullname: 1,
-                        profilePicture: 1,
-                        bio: 1,
-                        location: 1,
-                        isPrivateAccount: 1,
-                        createdAt: 1
+                    $lookup: {
+                        from: "follows",
+                        let: { userId: "$_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$following", "$$userId"] },
+                                            { $eq: ["$status", "accepted"] }
+                                        ]
+                                    }
+                                }
+                            }
+                        ],
+                        as: "followers"
                     }
                 },
-                { $sort: { createdAt: -1 } },
-                { $limit: 10 }
+                {
+                    $addFields: {
+                        followerCount: { $size: "$followers" }
+                    }
+                },
+                {
+                    $sort: {
+                        followerCount: -1
+                    }
+                },
+                { $limit: 20 }
             ];
             break;
 
@@ -688,13 +705,31 @@ const getTrendingUsers = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Invalid trending type");
     }
 
+    // Add common fields to all pipelines
+    pipeline.push(
+        {
+            $project: {
+                _id: 1,
+                username: 1,
+                fullname: 1,
+                profilePicture: 1,
+                bio: 1,
+                isPrivateAccount: 1,
+                followerCount: 1
+            }
+        }
+    );
+
     const users = await User.aggregate(pipeline);
 
     // Add follow status for each user
     const usersWithFollowStatus = await Promise.all(
         users.map(async (user) => {
             const followStatus = await checkFollowStatus(currentUserId, user._id);
-            return { ...user, followStatus };
+            return {
+                ...user,
+                followStatus
+            };
         })
     );
 
