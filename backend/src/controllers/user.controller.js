@@ -573,6 +573,222 @@ const handleFollowRequest = asyncHandler(async (req, res) => {
     }
 });
 
+const getTrendingUsers = asyncHandler(async (req, res) => {
+    const { type = 'rising' } = req.query;
+    const currentUserId = req.user._id;
+
+    let pipeline = [];
+
+    switch (type) {
+        case 'rising':
+            // Users with most followers in the last 7 days
+            pipeline = [
+                {
+                    $lookup: {
+                        from: "follows",
+                        let: { userId: "$_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$following", "$$userId"] },
+                                            { $eq: ["$status", "accepted"] },
+                                            { $gte: ["$createdAt", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] }
+                                        ]
+                                    }
+                                }
+                            }
+                        ],
+                        as: "recentFollowers"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        username: 1,
+                        fullname: 1,
+                        profilePicture: 1,
+                        bio: 1,
+                        location: 1,
+                        isPrivateAccount: 1,
+                        createdAt: 1,
+                        recentFollowers: { $size: "$recentFollowers" }
+                    }
+                },
+                { $sort: { recentFollowers: -1 } },
+                { $limit: 10 }
+            ];
+            break;
+
+        case 'most_liked':
+            // Users whose posts have received the most likes
+            pipeline = [
+                {
+                    $lookup: {
+                        from: "posts",
+                        localField: "_id",
+                        foreignField: "author",
+                        as: "posts"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "likes",
+                        let: { postIds: "$posts._id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: { $in: ["$post", "$$postIds"] }
+                                }
+                            }
+                        ],
+                        as: "likes"
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        username: 1,
+                        fullname: 1,
+                        profilePicture: 1,
+                        bio: 1,
+                        location: 1,
+                        isPrivateAccount: 1,
+                        createdAt: 1,
+                        totalLikes: { $size: "$likes" }
+                    }
+                },
+                { $sort: { totalLikes: -1 } },
+                { $limit: 10 }
+            ];
+            break;
+
+        case 'new':
+            // Most recent users
+            pipeline = [
+                {
+                    $project: {
+                        _id: 1,
+                        username: 1,
+                        fullname: 1,
+                        profilePicture: 1,
+                        bio: 1,
+                        location: 1,
+                        isPrivateAccount: 1,
+                        createdAt: 1
+                    }
+                },
+                { $sort: { createdAt: -1 } },
+                { $limit: 10 }
+            ];
+            break;
+
+        default:
+            throw new ApiError(400, "Invalid trending type");
+    }
+
+    const users = await User.aggregate(pipeline);
+
+    // Add follow status for each user
+    const usersWithFollowStatus = await Promise.all(
+        users.map(async (user) => {
+            const followStatus = await checkFollowStatus(currentUserId, user._id);
+            return { ...user, followStatus };
+        })
+    );
+
+    return res.status(200).json(
+        new ApiResponse(200, usersWithFollowStatus, "Trending users fetched successfully")
+    );
+});
+
+const getSuggestedUsers = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    const limit = parseInt(req.query.limit) || 5;
+
+    // Get users that the current user is not following
+    const pipeline = [
+        {
+            $match: {
+                _id: { $ne: currentUserId }
+            }
+        },
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$follower", currentUserId] },
+                                    { $eq: ["$following", "$$userId"] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "isFollowing"
+            }
+        },
+        {
+            $match: {
+                isFollowing: { $size: 0 }
+            }
+        },
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$following", "$$userId"] },
+                                    { $eq: ["$status", "accepted"] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "followers"
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                username: 1,
+                fullname: 1,
+                profilePicture: 1,
+                bio: 1,
+                location: 1,
+                isPrivateAccount: 1,
+                createdAt: 1,
+                followers: { $size: "$followers" }
+            }
+        },
+        { $sort: { followers: -1 } },
+        { $limit: limit }
+    ];
+
+    const users = await User.aggregate(pipeline);
+
+    // Add follow status for each user
+    const usersWithFollowStatus = await Promise.all(
+        users.map(async (user) => {
+            const followStatus = await checkFollowStatus(currentUserId, user._id);
+            return { ...user, followStatus };
+        })
+    );
+
+    return res.status(200).json(
+        new ApiResponse(200, usersWithFollowStatus, "Suggested users fetched successfully")
+    );
+});
+
 export {
     userRegister,
     userLogin,
@@ -586,5 +802,7 @@ export {
     updateUserProfile,
     togglePrivateAccount,
     getFollowRequests,
-    handleFollowRequest
+    handleFollowRequest,
+    getTrendingUsers,
+    getSuggestedUsers
 };

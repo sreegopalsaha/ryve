@@ -13,6 +13,8 @@ import FollowingFollowersPage from "./pages/FollowingFollowersPage";
 import SearchPage from "./pages/SearchPage";
 import EditProfilePage from "./pages/EditProfilePage";
 import FollowRequestsPage from "./pages/FollowRequestsPage";
+import SettingsPage from "./pages/SettingsPage";
+import TrendingPage from "./pages/TrendingPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -45,6 +47,10 @@ function App() {
           element: <PrivateRoute element={<EditProfilePage />} />,
         },
         {
+          path: "trending",
+          element: <PrivateRoute element={<TrendingPage />} />,
+        },
+        {
           path: ":userIdentifier",
           element: <PrivateRoute element={<UserProfilePage />} />,
         },
@@ -55,6 +61,10 @@ function App() {
         {
           path: ":userIdentifier/followers",
           element: <PrivateRoute element={<FollowingFollowersPage />} />,
+        },
+        {
+          path: "settings",
+          element: <PrivateRoute element={<SettingsPage />} />,
         },
       ],
     },

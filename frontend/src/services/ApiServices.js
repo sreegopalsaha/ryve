@@ -53,3 +53,11 @@ export const handleFollowRequest = (requestId, action) => {
     console.log('Sending follow request:', { requestId, action });
     return api.post('/user/handle-follow-request', { requestId, action });
 };
+
+export const getTrendingUsers = async (type = 'rising') => {
+    return await axios.get(`${API_URL}/user/trending?type=${type}`);
+};
+
+export const getSuggestedUsers = async (limit = 5) => {
+    return await axios.get(`${API_URL}/user/suggested?limit=${limit}`);
+};

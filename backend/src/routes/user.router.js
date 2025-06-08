@@ -13,7 +13,9 @@ import {
     updateUserProfile, 
     togglePrivateAccount,
     getFollowRequests,
-    handleFollowRequest 
+    handleFollowRequest,
+    getTrendingUsers,
+    getSuggestedUsers
 } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 import { searchUsers } from "../controllers/post.controller.js";
@@ -43,5 +45,9 @@ router.put("/togglePrivateAccount", isLoggedIn, togglePrivateAccount);
 // Add follow requests routes
 router.get("/follow-requests", isLoggedIn, getFollowRequests);
 router.post("/handle-follow-request", isLoggedIn, express.json(), handleFollowRequest);
+
+// New routes for trending and suggested users
+router.get("/trending", isLoggedIn, getTrendingUsers);
+router.get("/suggested", isLoggedIn, getSuggestedUsers);
 
 export default router;
