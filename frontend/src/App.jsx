@@ -16,6 +16,7 @@ import FollowRequestsPage from "./pages/FollowRequestsPage";
 import SettingsPage from "./pages/SettingsPage";
 import TrendingPage from "./pages/TrendingPage";
 import ChatPage from "./pages/ChatPage";
+import StarredPostsPage from "./pages/StarredPostsPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -70,6 +71,10 @@ function App() {
         {
           path: "settings",
           element: <PrivateRoute element={<SettingsPage />} />,
+        },
+        {
+          path: "/starred",
+          element: <StarredPostsPage />,
         },
       ],
     },

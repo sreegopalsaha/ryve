@@ -81,6 +81,7 @@ const getFeedPosts = asyncHandler(async (req, res, next) => {
         content: post.content,
         image: post.image,
         likedBy: post.likedBy,
+        starredBy: post.starredBy,
         createdAt: post.createdAt,
         _id: post._id,
         author: {
@@ -114,9 +115,28 @@ const getUserPosts = asyncHandler(async (req, res, next) => {
     if (!canAccess) throw new ApiError(403, "Private Account");
 
     const posts = await Post.find({ author: targetUser._id })
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .populate({
+            path: 'author',
+            select: 'fullname username profilePicture'
+        });
 
-    res.status(200).json(new ApiResponse(200, posts, "Posts fetched successfully"));
+    const formattedPosts = posts.map(post => ({
+        content: post.content,
+        image: post.image,
+        likedBy: post.likedBy,
+        starredBy: post.starredBy,
+        createdAt: post.createdAt,
+        _id: post._id,
+        author: {
+            _id: post.author._id,
+            fullname: post.author.fullname,
+            username: post.author.username,
+            profilePicture: post.author.profilePicture
+        }
+    }));
+
+    res.status(200).json(new ApiResponse(200, formattedPosts, "Posts fetched successfully"));
 });
 
 const getPost = asyncHandler(async (req, res, next) => {
@@ -141,6 +161,7 @@ const getPost = asyncHandler(async (req, res, next) => {
                 image: 1,
                 createdAt: 1,
                 likedBy: 1,
+                starredBy: 1,
                 "authorDetails._id": 1,
                 "authorDetails.fullname": 1,
                 "authorDetails.username": 1,
@@ -237,4 +258,70 @@ const searchUsers = asyncHandler(async (req, res, next) => {
 
 });
 
-export { getFeedPosts, enhanceContent, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments, searchUsers };
+const starPostToggle = asyncHandler(async (req, res, next) => {
+    const currentUser = req.user;
+    const { postId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        throw new ApiError(400, "Invalid Post ID");
+    }
+
+    const post = await Post.findById(postId).populate("author", "isPrivateAccount");
+    if (!post) throw new ApiError(404, "Post not found");
+    if (!post.author) return res.status(404).json({ error: "Author not found" });
+
+    const isOwner = post.author.toString() === currentUser._id.toString();
+    if (!isOwner && post.author.isPrivateAccount) {
+        const followStatus = await checkFollowStatus(currentUser._id, post.author);
+        if (followStatus !== "accepted") throw new ApiError(403, "This is a private post");
+    }
+
+    const hasStarred = post.starredBy.some(
+        (id) => id.toString() === currentUser._id.toString()
+    );
+
+    let message;
+
+    if (hasStarred) {
+        await Post.findByIdAndUpdate(postId, {
+            $pull: { starredBy: currentUser._id },
+        });
+        message = "Successfully unstarred";
+    } else {
+        await Post.findByIdAndUpdate(postId, {
+            $addToSet: { starredBy: currentUser._id },
+        });
+        message = "Successfully starred";
+    }
+
+    res.status(200).json(new ApiResponse(200, message));
+});
+
+const getStarredPosts = asyncHandler(async (req, res, next) => {
+    const currentUser = req.user._id;
+
+    const posts = await Post.find({ starredBy: currentUser })
+        .sort({ createdAt: -1 })
+        .populate({
+            path: 'author',
+            select: 'fullname username profilePicture isPrivateAccount'
+        });
+
+    // Filter out posts from private accounts that the user doesn't follow
+    const filteredPosts = [];
+    for (const post of posts) {
+        const isOwner = post.author._id.toString() === currentUser.toString();
+        if (isOwner || !post.author.isPrivateAccount) {
+            filteredPosts.push(post);
+        } else {
+            const followStatus = await checkFollowStatus(currentUser, post.author._id);
+            if (followStatus === "accepted") {
+                filteredPosts.push(post);
+            }
+        }
+    }
+
+    res.status(200).json(new ApiResponse(200, filteredPosts, "Starred posts fetched successfully"));
+});
+
+export { getFeedPosts, enhanceContent, getUserPosts, postLikeToggle, createPost, deletePost, updatePost, getPost, getPostComments, searchUsers, starPostToggle, getStarredPosts };

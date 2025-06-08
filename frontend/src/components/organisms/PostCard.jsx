@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Heart, MessageCircle, MoreVertical, Share, Star } from "lucide-react";
+import { Heart, MoreVertical, Share, Star } from "lucide-react";
 import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
-import { deletePost, postLikeToggle } from "../../services/ApiServices";
+import { deletePost, postLikeToggle, starPostToggle } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import Dropdown from "../molecules/Dropdown";
+import GlobalError from "../errors/GlobalError";
 
 function PostCard({ post, author, setPosts }) {
   const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
   const [likedBy, setLikedBy] = useState(post.likedBy);
+  const [starredBy, setStarredBy] = useState(post.starredBy || []);
   const [liked, setLiked] = useState(false);
+  const [starred, setStarred] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!currentUser || !post) return;
     setLiked(likedBy.includes(currentUser._id));
-  }, [currentUser, post]);
+    setStarred(starredBy.includes(currentUser._id));
+  }, [currentUser, post, likedBy, starredBy]);
 
   const handleLikeToggle = async () => {
     if (!currentUser) return;
@@ -43,13 +48,56 @@ function PostCard({ post, author, setPosts }) {
     }
   };
 
+  const handleStarToggle = async () => {
+    if (!currentUser) return;
+
+    const prevStarredBy = [...starredBy];
+    let newStarredBy;
+
+    if (starred) {
+      newStarredBy = prevStarredBy.filter((userId) => userId !== currentUser._id);
+    } else {
+      newStarredBy = [...prevStarredBy, currentUser._id];
+    }
+
+    setStarredBy(newStarredBy);
+    setStarred(!starred);
+
+    try {
+      await starPostToggle(post._id);
+    } catch (error) {
+      setStarredBy(prevStarredBy);
+      setStarred(starred);
+    }
+  };
+
   const handleDeleteClick = async () => {
     try {
       await deletePost(post._id);
       setPosts((prev) => prev.filter((prevPost) => prevPost._id !== post._id));
-
     } catch (error) {
       console.log("Error while deleting post");
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      const postUrl = `${window.location.origin}/post/${post._id}`;
+      if (navigator.share) {
+        await navigator.share({
+          title: `${author.fullname}'s post`,
+          text: post.content,
+          url: postUrl
+        });
+      } else {
+        // Fallback for browsers that don't support navigator.share
+        await navigator.clipboard.writeText(postUrl);
+        alert('Post link copied to clipboard!');
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        setError(error);
+      }
     }
   };
 
@@ -75,10 +123,13 @@ function PostCard({ post, author, setPosts }) {
     },
   ];
 
+  if (error) {
+    return <GlobalError error={error} />;
+  }
+
   return (
     <Card className="w-full gap-4 max-w-[40rem]">
       {/* User Info */}
-
       <div className="cursor-pointer flex items-center justify-between gap-3 theme-text ">
         {/* left side */}
         <div
@@ -144,17 +195,19 @@ function PostCard({ post, author, setPosts }) {
           <span>{likedBy.length}</span>
         </Button>
 
-        <Button className="gap-1 hover:text-blue-500">
-          <MessageCircle size={18} />
-          <span>{post.comments?.length || 0}</span>
-        </Button>
-
-        <Button className="gap-1 hover:text-blue-500">
+        <Button 
+          className="gap-1 hover:text-blue-500"
+          onClick={handleShare}
+        >
           <Share size={18} />
         </Button>
 
-        <Button className="gap-1 hover:text-green-500">
+        <Button 
+          className={`gap-1 ${starred ? "text-yellow-500" : "hover:text-yellow-500"}`}
+          onClick={handleStarToggle}
+        >
           <Star size={18} />
+          <span>{starredBy.length}</span>
         </Button>
       </div>
     </Card>

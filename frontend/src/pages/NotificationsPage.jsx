@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Screen from '../components/molecules/Screen';
-import { getNotifications } from '../services/ApiServices';
+import { getNotifications, markNotificationAsRead } from '../services/ApiServices';
 import { formatDistanceToNow } from 'date-fns';
 import { Heart, UserPlus, MessageCircle, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -53,11 +53,27 @@ function NotificationsPage() {
     }
   };
 
-  const handleNotificationClick = (notification) => {
-    if (notification.post) {
-      navigate(`/post/${notification.post._id}`);
-    } else if (notification.type === 'follow') {
-      navigate(`/${notification.sender.username}`);
+  const handleNotificationClick = async (notification) => {
+    try {
+      // Mark notification as read
+      if (!notification.read) {
+        await markNotificationAsRead(notification._id);
+        // Update local state
+        setNotifications(prevNotifications =>
+          prevNotifications.map(n =>
+            n._id === notification._id ? { ...n, read: true } : n
+          )
+        );
+      }
+
+      // Navigate based on notification type
+      if (notification.post) {
+        navigate(`/post/${notification.post._id}`);
+      } else if (notification.type === 'follow') {
+        navigate(`/${notification.sender.username}`);
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
     }
   };
 
