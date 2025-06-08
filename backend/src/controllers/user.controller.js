@@ -502,6 +502,63 @@ const handleFollowRequest = asyncHandler(async (req, res, next) => {
     }
 });
 
+const getSuggestedUsers = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    const LIMIT = 5;
+
+    // IDs the current user already follows (accepted or pending)
+    const myFollows = await Follow.find({ follower: currentUserId }).select("following").lean();
+    const myFollowingIds = myFollows.map((f) => f.following);
+
+    // Exclude current user and anyone already followed
+    const excludeIds = [currentUserId, ...myFollowingIds];
+
+    // Step 1: mutual-connection candidates — users followed by people I follow
+    const mutualFollows = await Follow.find({
+        follower: { $in: myFollowingIds },
+        following: { $nin: excludeIds },
+        status: "accepted",
+    }).select("following").lean();
+
+    // Deduplicate
+    const seen = new Set();
+    const mutualIds = [];
+    for (const f of mutualFollows) {
+        const id = f.following.toString();
+        if (!seen.has(id)) {
+            seen.add(id);
+            mutualIds.push(f.following);
+        }
+    }
+
+    let suggestedIds = mutualIds.slice(0, LIMIT);
+
+    // Step 2: fill remaining slots with random users
+    if (suggestedIds.length < LIMIT) {
+        const remaining = LIMIT - suggestedIds.length;
+        const randomUsers = await User.find({
+            _id: { $nin: [...excludeIds, ...suggestedIds] },
+        })
+            .select("_id")
+            .limit(remaining * 3) // fetch a few extra so we can pick randomly
+            .lean();
+
+        // shuffle and pick
+        const shuffled = randomUsers.sort(() => Math.random() - 0.5).slice(0, remaining);
+        suggestedIds = [...suggestedIds, ...shuffled.map((u) => u._id)];
+    }
+
+    // Fetch full user details
+    const users = await User.find({ _id: { $in: suggestedIds } })
+        .select("_id username fullname profilePicture isPrivateAccount")
+        .lean();
+
+    // Attach followStatus (always "not-following" since we excluded already-followed)
+    const result = users.map((u) => ({ ...u, followStatus: "not-following" }));
+
+    return res.status(200).json(new ApiResponse(200, result, "Suggested users fetched successfully"));
+});
+
 export { 
     userRegister, 
     userLogin, 
@@ -514,5 +571,6 @@ export {
     getUserFollowers, 
     getUserFollowing,
     getFollowRequests,
-    handleFollowRequest
+    handleFollowRequest,
+    getSuggestedUsers
 };

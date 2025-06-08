@@ -18,8 +18,8 @@ function UserCard({ user }) {
 
   const handleFollowToggle = async (e) => {
     e.stopPropagation();
-    const prevFollowStatus = user.followStatus;
-    let newFollowStatus = prevFollowStatus;
+    const prevFollowStatus = followStatus;
+    let newFollowStatus;
     if (followStatus === "accepted" || followStatus === "pending") {
       newFollowStatus = "not-following";
     } else if (user.isPrivateAccount) {
@@ -35,7 +35,7 @@ function UserCard({ user }) {
     } catch (error) {
       setFollowStatus(prevFollowStatus);
       // console.error("Error while toggling follow status:", error);
-    }finally{
+    } finally {
       setFollowToggleLoading(false);
     }
   };

@@ -12,7 +12,8 @@ import {
     getUserFollowers, 
     getUserFollowing,
     getFollowRequests,
-    handleFollowRequest
+    handleFollowRequest,
+    getSuggestedUsers
 } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 import { searchUsers } from "../controllers/post.controller.js";
@@ -37,5 +38,6 @@ router.get("/follow-requests", isLoggedIn, getFollowRequests);
 router.post("/handle-follow-request", isLoggedIn, handleFollowRequest);
 
 router.get("/searchUsers/:searchQuery", isLoggedIn, searchUsers);
+router.get("/suggestedUsers", isLoggedIn, getSuggestedUsers);
 
 export default router;

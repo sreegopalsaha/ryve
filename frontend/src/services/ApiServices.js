@@ -22,6 +22,7 @@ export const updateAccountDetails = (data) => api.put('/user/updateAccountDetail
 export const updateProfilePicture = (data) => api.put('/user/updateProfilePicture', data);
 export const updateAccountPrivacy = (isPrivateAccount) => api.put('/user/updateAccountDetails', { isPrivateAccount });
 export const searchUsers = (searchQuery)=> api.get(`user/searchUsers/${searchQuery}`);
+export const getSuggestedUsers = () => api.get('/user/suggestedUsers');
 
 export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
 export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);
