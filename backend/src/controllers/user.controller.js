@@ -436,4 +436,83 @@ const getUserFollowing = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(200, followings, "Followings fetched successfully"));
 });
 
-export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, updateProfilePicture, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing };
+const getFollowRequests = asyncHandler(async (req, res, next) => {
+    const currentUserId = req.user?._id;
+    if (!currentUserId) throw new ApiError(401, "Unauthorized access");
+
+    const requests = await Follow.find({
+        following: currentUserId,
+        status: "pending"
+    })
+        .populate("follower", "fullname username profilePicture bio")
+        .sort({ createdAt: -1 });
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, requests, "Follow requests fetched successfully"));
+});
+
+const handleFollowRequest = asyncHandler(async (req, res, next) => {
+    const currentUserId = req.user?._id;
+    const { requestId, action } = req.body;
+
+    if (!currentUserId) throw new ApiError(401, "Unauthorized access");
+    if (!requestId) throw new ApiError(400, "Request ID is required");
+    if (!["accept", "reject"].includes(action)) {
+        throw new ApiError(400, "Invalid action. Must be 'accept' or 'reject'");
+    }
+
+    if (!isValidObjectId(requestId)) {
+        throw new ApiError(400, "Invalid Request ID format");
+    }
+
+    const follow = await Follow.findOne({
+        $or: [
+            { _id: requestId },
+            { follower: requestId, following: currentUserId }
+        ],
+        following: currentUserId,
+        status: "pending"
+    });
+
+    if (!follow) throw new ApiError(404, "Follow request not found");
+
+    if (action === "accept") {
+        follow.status = "accepted";
+        await follow.save();
+
+        if (currentUserId.toString() !== follow.follower.toString()) {
+            await Notification.create({
+                sender: currentUserId,
+                recipient: follow.follower,
+                type: "follow",
+            });
+        }
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, { requestId, status: "accepted" }, "Follow request accepted successfully"));
+    }
+
+    if (action === "reject") {
+        await Follow.findByIdAndDelete(follow._id);
+        return res
+            .status(200)
+            .json(new ApiResponse(200, { requestId, status: "rejected" }, "Follow request rejected successfully"));
+    }
+});
+
+export { 
+    userRegister, 
+    userLogin, 
+    getCurrentUser, 
+    getUserProfile, 
+    updateAccountDetails, 
+    updateProfilePicture, 
+    changeCurrentPassword, 
+    userFollowUnfollow, 
+    getUserFollowers, 
+    getUserFollowing,
+    getFollowRequests,
+    handleFollowRequest
+};
