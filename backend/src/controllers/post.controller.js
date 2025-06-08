@@ -99,16 +99,22 @@ const getUserPosts = asyncHandler(async (req, res, next) => {
     const currentUser = req.user;
     if (!userIdentifier) throw new ApiError(400, "userIdentifier is required");
 
-    const query = mongoose.isValidObjectId(userIdentifier)
-        ? { _id: new mongoose.Types.ObjectId(userIdentifier) }
-        : { username: userIdentifier };
-
-    const targetUser = await User.findOne(query);
+    const targetUser = await User.findOne({
+        $or: [
+            { username: userIdentifier.toLowerCase() },
+            { _id: mongoose.isValidObjectId(userIdentifier) ? new mongoose.Types.ObjectId(userIdentifier) : null }
+        ]
+    });
 
     if (!targetUser) throw new ApiError(404, "User not found");
 
-    const followStatus = checkFollowStatus(currentUser._id, targetUser._id);
-    const canAccess = !targetUser.isPrivateAccount || followStatus === "accepted";
+    const isOwner = currentUser._id.toString() === targetUser._id.toString();
+    let followStatus = null;
+    if (!isOwner) {
+        followStatus = await checkFollowStatus(currentUser._id, targetUser._id);
+    }
+
+    const canAccess = isOwner || !targetUser.isPrivateAccount || followStatus === "accepted";
     if (!canAccess) throw new ApiError(403, "Private Account");
 
     const posts = await Post.find({ author: targetUser._id })
@@ -176,11 +182,10 @@ const postLikeToggle = asyncHandler(async (req, res, next) => {
 
     const post = await Post.findById(postId).populate("author", "isPrivateAccount");
     if (!post) throw new ApiError(404, "Post not found");
-    if (!post.author) return res.status(404).json({ error: "Author not found" });
-
-    const isOwner = post.author.toString() === currentUser._id.toString();
+    const authorId = post.author._id || post.author;
+    const isOwner = authorId.toString() === currentUser._id.toString();
     if (!isOwner && post.author.isPrivateAccount) {
-        const followStatus = await checkFollowStatus(currentUser._id, post.author);
+        const followStatus = await checkFollowStatus(currentUser._id, authorId);
         if (followStatus !== "accepted") throw new ApiError(403, "This is a private post");
     }
 
