@@ -132,7 +132,7 @@ function ProfileCard({ user }) {
         {isOwner ? (
           <Button
             className="px-10 py-2 text-sm rounded-full bg-blue-500 text-white hover:bg-blue-600"
-            onClick={() => console.log("Edit Profile Clicked")}
+            onClick={() => navigate("/edit-profile")}
           >
             Edit
           </Button>

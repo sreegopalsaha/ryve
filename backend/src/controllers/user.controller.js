@@ -182,24 +182,49 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res, next) => {
-    const { fullname, email, username } = req.body;
+    const { fullname, email, username, isPrivateAccount, bio, location, mood } = req.body;
 
-    if (!fullname || !email || !username) throw new ApiError(400, "All fields are required")
+    // Allow privacy-only update without requiring other fields
+    if (isPrivateAccount !== undefined && !fullname && !email && !username) {
+        const user = await User.findByIdAndUpdate(
+            req.user?._id,
+            { $set: { isPrivateAccount } },
+            { new: true }
+        ).select("-password");
+        return res.status(200).json(new ApiResponse(200, user, "Account privacy updated successfully"));
+    }
+
+    if (!fullname || !email || !username) throw new ApiError(400, "All fields are required");
+
+    const updateFields = { fullname, email, username };
+    if (isPrivateAccount !== undefined) updateFields.isPrivateAccount = isPrivateAccount;
+    if (bio !== undefined) updateFields.bio = bio;
+    if (location !== undefined) updateFields.location = location;
+    if (mood !== undefined) updateFields.mood = mood;
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
-        {
-            $set: {
-                fullname,
-                email,
-                username
-            }
-        },
+        { $set: updateFields },
         { new: true }
-
     ).select("-password");
 
     return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
+const updateProfilePicture = asyncHandler(async (req, res, next) => {
+    const profilePicturePath = req.file?.path;
+    if (!profilePicturePath) throw new ApiError(400, "Profile picture file is required");
+
+    const profilePictureUrl = await uploadOnCloudinay(profilePicturePath);
+    if (!profilePictureUrl) throw new ApiError(500, "Failed to upload profile picture");
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        { $set: { profilePicture: profilePictureUrl } },
+        { new: true }
+    ).select("-password");
+
+    return res.status(200).json(new ApiResponse(200, user, "Profile picture updated successfully"));
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res, next) => {
@@ -411,4 +436,4 @@ const getUserFollowing = asyncHandler(async (req, res, next) => {
     return res.status(200).json(new ApiResponse(200, followings, "Followings fetched successfully"));
 });
 
-export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing };
+export { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, updateProfilePicture, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing };

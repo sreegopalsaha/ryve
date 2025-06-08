@@ -18,6 +18,9 @@ export const loginUser = (data) => api.post('/user/login', data);
 export const registerUser = (data) => api.post('/user/register', data);
 export const getCurrentUser = () => api.get('/user/getCurrentUser');
 export const getUserProfile = (userIdentifier) => api.get(`/user/getUserProfile/${userIdentifier}`);
+export const updateAccountDetails = (data) => api.put('/user/updateAccountDetails', data);
+export const updateProfilePicture = (data) => api.put('/user/updateProfilePicture', data);
+export const updateAccountPrivacy = (isPrivateAccount) => api.put('/user/updateAccountDetails', { isPrivateAccount });
 export const searchUsers = (searchQuery)=> api.get(`user/searchUsers/${searchQuery}`);
 
 export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);

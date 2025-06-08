@@ -1,6 +1,6 @@
 import express from "express";
 import isLoggedIn from "../middlewares/isLoggedIn.middleware.js";
-import { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing } from "../controllers/user.controller.js";
+import { userRegister, userLogin, getCurrentUser, getUserProfile, updateAccountDetails, updateProfilePicture, changeCurrentPassword, userFollowUnfollow, getUserFollowers, getUserFollowing } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 import { searchUsers } from "../controllers/post.controller.js";
 const router = express.Router();
@@ -12,6 +12,7 @@ router.get("/getCurrentUser", isLoggedIn, getCurrentUser);
 
 router.get("/getUserProfile/:userIdentifier", isLoggedIn, getUserProfile);
 router.put("/updateAccountDetails", isLoggedIn, updateAccountDetails);
+router.put("/updateProfilePicture", isLoggedIn, upload.single("profilePicture"), updateProfilePicture);
 router.put("/changeCurrentPassword", isLoggedIn, changeCurrentPassword);
 
 router.post("/followUnfollow/:targetUserId", isLoggedIn, userFollowUnfollow);

@@ -21,7 +21,10 @@ export const uploadOnCloudinay = async (localFilePath) => {
         return uploadResult.url;
 
     } catch (error) {
-        fs.unlinkSync(localFilePath)
+        console.error("Cloudinary upload error:", error);
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
         return null;
     }
 }
