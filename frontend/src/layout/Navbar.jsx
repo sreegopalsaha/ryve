@@ -77,18 +77,13 @@ function Navbar() {
     { name: "Home", slug: "/", icon: Home },
     { name: "Search", slug: "/search", icon: Search },
     { name: "Notifications", slug: "/notifications", icon: Bell, badge: unreadCount },
-    ...(currentUser?.isPrivateAccount
-      ? [
-          {
-            name: "Follow Requests",
-            slug: "/follow-requests",
-            icon: UserPlus,
-            badge: pendingRequests,
-          },
-        ]
-      : []),
     { name: "Messages", slug: "/messages", icon: MessageCircle },
-    { name: "Profile", slug: `/${currentUser?.username}`, icon: User },
+    {
+      name: "Profile",
+      slug: `/${currentUser?.username}`,
+      icon: User,
+      badge: currentUser?.isPrivateAccount ? pendingRequests : 0,
+    },
   ];
 
   return (
@@ -105,8 +100,8 @@ function Navbar() {
                 `grid grid-cols-[auto,1fr] items-center gap-2 p-3 rounded-lg text-lg font-medium transition-all duration-300 relative
         ${
           isActive
-            ? "bg-gray-200 dark:bg-gray-800"
-            : "hover:bg-gray-200 dark:hover:bg-gray-800"
+             ? "bg-gray-200 dark:bg-gray-800"
+             : "hover:bg-gray-200 dark:hover:bg-gray-800"
         }
          ${!currentUser ? "pointer-events-none opacity-50" : ""}
         `
@@ -134,7 +129,7 @@ function Navbar() {
       </Screen>
 
       {/* Bottom Navbar for Mobile */}
-      <div className="md:hidden z-50 fixed bottom-0 left-0 w-full bg-white p-2 flex justify-around theme-card">
+      <div className="md:hidden z-50 fixed bottom-0 left-0 w-full p-2 flex justify-around theme-card">
         {mobileNavItems.map((item) => (
           <NavLink
             key={item.slug}

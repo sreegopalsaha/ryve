@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -32,9 +32,9 @@ function SettingsSection({ title, children }) {
 
 function SettingsRow({ icon: Icon, label, sublabel, onClick, rightElement }) {
   return (
-    <button
+    <div
       onClick={onClick}
-      className="flex items-center gap-3 p-4 bg-primary-light-card dark:bg-primary-dark-card hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors w-full text-left border-b border-gray-100 dark:border-gray-800/60 last:border-b-0"
+      className="flex items-center gap-3 p-4 bg-primary-light-card dark:bg-primary-dark-card hover:bg-gray-100 dark:hover:bg-gray-800/60 cursor-pointer transition-colors w-full text-left border-b border-gray-100 dark:border-gray-800/60 last:border-b-0"
     >
       {Icon && (
         <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 flex-shrink-0">
@@ -52,7 +52,7 @@ function SettingsRow({ icon: Icon, label, sublabel, onClick, rightElement }) {
       ) : (
         <ChevronRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
       )}
-    </button>
+    </div>
   );
 }
 
