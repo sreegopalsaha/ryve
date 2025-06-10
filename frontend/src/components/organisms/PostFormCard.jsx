@@ -81,7 +81,7 @@ const PostFormCard = ({ setPosts }) => {
       const newContent = res.data?.data;
       setContent(newContent);
     } catch (error) {
-      console.log("Error enhancing content:");
+      console.log("Error enhancing content:", error);
     } finally {
       setIsEnhancing(false);
     }
