@@ -12,10 +12,12 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         lowercase: true,
-        required: true, 
+        required: [true, "Username is required"], 
         trim: true,
         unique: true,
-        index: true
+        index: true,
+        minlength: [3, "Username must be at least 3 characters long"],
+        match: [/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"]
     },
     isPrivateAccount: {
         type: Boolean,
@@ -24,12 +26,13 @@ const userSchema = new mongoose.Schema({
     email:{
         type: String,
         lowercase: true,
-        required: true, 
+        required: [true, "Email is required"], 
         trim: true,
     },
     password: {
         type: String,
-        required: true
+        required: [true, "Password is required"],
+        minlength: [6, "Password must be at least 6 characters long"]
     },
     profilePicture: {
         type: String,

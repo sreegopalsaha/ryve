@@ -300,7 +300,7 @@ const updateAccountDetails = asyncHandler(async (req, res, next) => {
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         { $set: updateFields },
-        { new: true }
+        { new: true, runValidators: true }
     ).select("-password -refreshToken");
 
     return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
