@@ -3,7 +3,7 @@ import isLoggedIn from "../middlewares/isLoggedIn.middleware.js";
 import { 
     userRegister, 
     userLogin, 
-    getCurrentUser, 
+    getMe, 
     getUserProfile, 
     updateAccountDetails, 
     updateProfilePicture, 
@@ -13,16 +13,16 @@ import {
     getUserFollowing,
     getFollowRequests,
     handleFollowRequest,
-    getSuggestedUsers
+    getSuggestedUsers,
+    searchUsers
 } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
-import { searchUsers } from "../controllers/post.controller.js";
 const router = express.Router();
 
 router.post("/register", upload.single("profilePicture"), userRegister);
 router.post("/login", userLogin);
 
-router.get("/getCurrentUser", isLoggedIn, getCurrentUser);
+router.get("/me", isLoggedIn, getMe);
 
 router.get("/getUserProfile/:userIdentifier", isLoggedIn, getUserProfile);
 router.put("/updateAccountDetails", isLoggedIn, updateAccountDetails);

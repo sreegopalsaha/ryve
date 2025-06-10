@@ -296,22 +296,4 @@ const updatePost = asyncHandler((req, res, next) => {
 
 });
 
-const searchUsers = asyncHandler(async (req, res, next) => {
-    const { searchQuery } = req.params;
-    if (!searchQuery) throw new ApiError(400, "Search term is required");
-
-    const users = await User.find({
-        $or: [
-            { fullname: { $regex: searchQuery, $options: "i" } },
-            { username: { $regex: searchQuery, $options: "i" } },
-            { location: { $regex: searchQuery, $options: "i" } },
-        ],
-    }).select("username fullname profilePicture");
-
-    if (!users) throw new ApiError(500, "Internal Server issue");
-
-    res.status(200).json(new ApiResponse(200, users, "Search results"));
-
-});
-
-export { getFeedPosts, enhanceContent, getUserPosts, postLikeToggle, starPostToggle, getStarredPosts, createPost, deletePost, updatePost, getPost, getPostComments, searchUsers };
+export { getFeedPosts, enhanceContent, getUserPosts, postLikeToggle, starPostToggle, getStarredPosts, createPost, deletePost, updatePost, getPost, getPostComments };

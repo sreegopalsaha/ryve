@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Screen from "../components/molecules/Screen";
 import { PostsLoading } from "../components/loadings/PostLoadingCard";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
-import { getStarredPosts } from "../services/ApiServices";
+import { usePost } from "../contexts/PostProvider";
 import FeedPosts from "./FeedPage/FeedPosts";
 import GlobalError from "../components/errors/GlobalError";
 import NoDataFound from "../components/organisms/NoDataFound";
@@ -10,26 +10,22 @@ import { Star } from "lucide-react";
 
 function StarredPostsPage() {
   const { currentUser } = useCurrentUser();
-  const [posts, setPosts] = useState(null);
-  const [postsLoading, setPostsLoading] = useState(true);
-  const [postsError, setPostsError] = useState(null);
-
-  const fetchStarredPosts = async () => {
-    try {
-      setPostsLoading(true);
-      const res = await getStarredPosts();
-      setPosts(res.data?.data || []);
-    } catch (error) {
-      setPostsError(error);
-    } finally {
-      setPostsLoading(false);
-    }
-  };
+  const {
+    starredPosts,
+    starredPostsLoading,
+    starredPostsError,
+    fetchStarredPosts,
+    setStarredPosts,
+  } = usePost();
 
   useEffect(() => {
     if (!currentUser) return;
-    fetchStarredPosts();
-  }, [currentUser]);
+    if (starredPosts === null) {
+      fetchStarredPosts();
+    }
+  }, [currentUser, starredPosts, fetchStarredPosts]);
+
+  const isLoading = starredPostsLoading || (starredPosts === null && !starredPostsError);
 
   return (
     <Screen middleScreen className="gap-4">
@@ -39,12 +35,12 @@ function StarredPostsPage() {
         </h1>
       </div>
 
-      {postsLoading ? (
+      {isLoading ? (
         <PostsLoading />
-      ) : postsError ? (
-        <GlobalError error={postsError} />
-      ) : posts && posts.length > 0 ? (
-        <FeedPosts posts={posts} setPosts={setPosts} />
+      ) : starredPostsError ? (
+        <GlobalError error={starredPostsError} />
+      ) : starredPosts && starredPosts.length > 0 ? (
+        <FeedPosts posts={starredPosts} setPosts={setStarredPosts} />
       ) : (
         <NoDataFound
           icon={Star}

@@ -45,7 +45,7 @@ function ProfileCard({ user }) {
   }, [followStatus]);
 
   useEffect(() => {
-    if (!isOwner || !currentUser?.isPrivateAccount) return;
+    if (!isOwner || !isMenuOpen || !currentUser?.isPrivateAccount) return;
     const fetchRequests = async () => {
       try {
         const res = await getFollowRequests();
@@ -55,7 +55,7 @@ function ProfileCard({ user }) {
       }
     };
     fetchRequests();
-  }, [isOwner, currentUser?.isPrivateAccount]);
+  }, [isOwner, isMenuOpen, currentUser?.isPrivateAccount]);
 
   useEffect(() => {
     if (isMenuOpen) {

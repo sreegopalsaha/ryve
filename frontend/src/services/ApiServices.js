@@ -16,17 +16,16 @@ api.interceptors.request.use((config) => {
 
 export const loginUser = (data) => api.post('/user/login', data);
 export const registerUser = (data) => api.post('/user/register', data);
-export const getCurrentUser = () => api.get('/user/getCurrentUser');
+export const getMe = () => api.get('/user/me');
 export const getUserProfile = (userIdentifier) => api.get(`/user/getUserProfile/${userIdentifier}`);
 export const updateAccountDetails = (data) => api.put('/user/updateAccountDetails', data);
 export const updateProfilePicture = (data) => api.put('/user/updateProfilePicture', data);
-export const updateAccountPrivacy = (isPrivateAccount) => api.put('/user/updateAccountDetails', { isPrivateAccount });
-export const searchUsers = (searchQuery)=> api.get(`user/searchUsers/${searchQuery}`);
+export const searchUsers = (searchQuery) => api.get(`/user/searchUsers/${searchQuery}`);
 export const getSuggestedUsers = () => api.get('/user/suggestedUsers');
 
-export const userFollowUnfollow = (userId) => api.post(`/user/followunfollow/${userId}`);
-export const getFollowing = (userIdentifier) => api.get(`/user/getfollowing/${userIdentifier}`);
-export const getFollowers = (userIdentifier) => api.get(`/user/getfollowers/${userIdentifier}`);
+export const userFollowUnfollow = (userId) => api.post(`/user/followUnfollow/${userId}`);
+export const getFollowing = (userIdentifier) => api.get(`/user/getFollowing/${userIdentifier}`);
+export const getFollowers = (userIdentifier) => api.get(`/user/getFollowers/${userIdentifier}`);
 export const getFollowRequests = () => api.get('/user/follow-requests');
 export const handleFollowRequest = (requestId, action) => api.post('/user/handle-follow-request', { requestId, action });
 

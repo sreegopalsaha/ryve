@@ -15,7 +15,7 @@ import Cookies from "js-cookie";
 import Screen from "../components/molecules/Screen";
 import { useTheme } from "../contexts/ThemeContext";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
-import { updateAccountPrivacy } from "../services/ApiServices";
+import { updateAccountDetails } from "../services/ApiServices";
 
 function SettingsSection({ title, children }) {
   return (
@@ -59,7 +59,7 @@ function SettingsRow({ icon: Icon, label, sublabel, onClick, rightElement }) {
 function SettingsPage() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
-  const { currentUser, fetchCurrentUser } = useCurrentUser();
+  const { currentUser, updateCurrentUser } = useCurrentUser();
 
   const [privacyLoading, setPrivacyLoading] = useState(false);
   const [privacyError, setPrivacyError] = useState("");
@@ -70,9 +70,10 @@ function SettingsPage() {
   const handlePrivacyToggle = async () => {
     setPrivacyLoading(true);
     setPrivacyError("");
+    const newPrivacyState = !isPrivate;
     try {
-      await updateAccountPrivacy(!isPrivate);
-      await fetchCurrentUser();
+      await updateAccountDetails({ isPrivateAccount: newPrivacyState });
+      updateCurrentUser({ isPrivateAccount: newPrivacyState });
     } catch (err) {
       setPrivacyError(
         err?.response?.data?.message || "Failed to update privacy setting."

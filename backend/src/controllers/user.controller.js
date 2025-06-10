@@ -94,12 +94,80 @@ const userLogin = asyncHandler(async (req, res, next) => {
 
 })
 
-const getCurrentUser = asyncHandler(async (req, res, next) => {
-    const user = req.user;
+const getMe = asyncHandler(async (req, res, next) => {
+    const userId = req.user?._id;
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized request");
+    }
+
+    const pipeline = [
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$following", "$$userId"] },
+                                    { $eq: ["$status", "accepted"] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "followers"
+            }
+        },
+        {
+            $lookup: {
+                from: "follows",
+                let: { userId: "$_id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$follower", "$$userId"] },
+                                    { $eq: ["$status", "accepted"] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "following"
+            }
+        },
+        {
+            $project: {
+                password: 0,
+                refreshToken: 0
+            }
+        },
+        {
+            $addFields: {
+                followers: { $size: "$followers" },
+                following: { $size: "$following" }
+            }
+        }
+    ];
+
+    const [user] = await User.aggregate(pipeline);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
     return res.status(200).json(new ApiResponse(
         200,
         user,
-        "User fetched successfully"
+        "Current user fetched successfully"
     ));
 });
 
@@ -165,6 +233,7 @@ const getUserProfile = asyncHandler(async (req, res, next) => {
                 profilePicture: 1,
                 bio: 1,
                 location: 1,
+                mood: 1,
                 isPrivateAccount: 1,
                 createdAt: 1,
                 followers: { $size: "$followers" },
@@ -190,7 +259,7 @@ const updateAccountDetails = asyncHandler(async (req, res, next) => {
             req.user?._id,
             { $set: { isPrivateAccount } },
             { new: true }
-        ).select("-password");
+        ).select("-password -refreshToken");
         return res.status(200).json(new ApiResponse(200, user, "Account privacy updated successfully"));
     }
 
@@ -206,7 +275,7 @@ const updateAccountDetails = asyncHandler(async (req, res, next) => {
         req.user?._id,
         { $set: updateFields },
         { new: true }
-    ).select("-password");
+    ).select("-password -refreshToken");
 
     return res.status(200).json(new ApiResponse(200, user, "Account details updated successfully"));
 });
@@ -222,23 +291,38 @@ const updateProfilePicture = asyncHandler(async (req, res, next) => {
         req.user?._id,
         { $set: { profilePicture: profilePictureUrl } },
         { new: true }
-    ).select("-password");
+    ).select("-password -refreshToken");
 
     return res.status(200).json(new ApiResponse(200, user, "Profile picture updated successfully"));
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res, next) => {
-    const { oldPassword, newPassword } = req.body
+    const { oldPassword, newPassword } = req.body;
 
     const user = await User.findById(req.user?._id);
-    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+    const isPasswordCorrect = await user.isCorrectPassword(oldPassword);
 
     if (!isPasswordCorrect) throw new ApiError(400, "Invalid old password");
 
-    user.password = newPassword
+    user.password = newPassword;
     await user.save({ validateBeforeSave: false });
 
     return res.status(200).json(new ApiResponse(200, {}, "Password changed successfully"));
+});
+
+const searchUsers = asyncHandler(async (req, res, next) => {
+    const { searchQuery } = req.params;
+    if (!searchQuery) throw new ApiError(400, "Search term is required");
+
+    const users = await User.find({
+        $or: [
+            { fullname: { $regex: searchQuery, $options: "i" } },
+            { username: { $regex: searchQuery, $options: "i" } },
+            { location: { $regex: searchQuery, $options: "i" } },
+        ],
+    }).select("username fullname profilePicture isPrivateAccount");
+
+    res.status(200).json(new ApiResponse(200, users, "Search results"));
 });
 
 const userFollowUnfollow = asyncHandler(async (req, res, next) => {
@@ -562,7 +646,7 @@ const getSuggestedUsers = asyncHandler(async (req, res) => {
 export { 
     userRegister, 
     userLogin, 
-    getCurrentUser, 
+    getMe, 
     getUserProfile, 
     updateAccountDetails, 
     updateProfilePicture, 
@@ -572,5 +656,6 @@ export {
     getUserFollowing,
     getFollowRequests,
     handleFollowRequest,
-    getSuggestedUsers
+    getSuggestedUsers,
+    searchUsers
 };

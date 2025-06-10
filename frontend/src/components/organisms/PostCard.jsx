@@ -3,6 +3,7 @@ import { Heart, MessageCircle, MoreVertical, Share, Star } from "lucide-react";
 import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
+import { usePost } from "../../contexts/PostProvider";
 import { deletePost, postLikeToggle, starPostToggle } from "../../services/ApiServices";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
@@ -11,6 +12,9 @@ import Dropdown from "../molecules/Dropdown";
 function PostCard({ post, author, setPosts }) {
   const navigate = useNavigate();
   const { currentUser } = useCurrentUser();
+  const postContext = usePost();
+  const toggleStarPost = postContext?.toggleStarPost;
+
   const [likedBy, setLikedBy] = useState(post.likedBy || []);
   const [liked, setLiked] = useState(false);
   const [starredBy, setStarredBy] = useState(post.starredBy || []);
@@ -22,6 +26,15 @@ function PostCard({ post, author, setPosts }) {
     setLiked(likedBy.includes(currentUser._id));
     setStarred(starredBy.includes(currentUser._id));
   }, [currentUser, post, likedBy, starredBy]);
+
+  useEffect(() => {
+    if (post?.starredBy) {
+      setStarredBy(post.starredBy);
+      if (currentUser) {
+        setStarred(post.starredBy.includes(currentUser._id));
+      }
+    }
+  }, [post?.starredBy, currentUser]);
 
   const handleLikeToggle = async () => {
     if (!currentUser) return;
@@ -47,25 +60,31 @@ function PostCard({ post, author, setPosts }) {
   };
 
   const handleStarToggle = async () => {
-    if (!currentUser) return;
+    if (!currentUser || !post) return;
 
     const prevStarredBy = [...starredBy];
-    let newStarredBy;
-
-    if (starred) {
-      newStarredBy = prevStarredBy.filter((userId) => userId !== currentUser._id);
-    } else {
-      newStarredBy = [...prevStarredBy, currentUser._id];
-    }
+    const isCurrentlyStarred = starred;
+    const newStarredBy = isCurrentlyStarred
+      ? prevStarredBy.filter((userId) => userId !== currentUser._id)
+      : [...prevStarredBy, currentUser._id];
 
     setStarredBy(newStarredBy);
-    setStarred(!starred);
+    setStarred(!isCurrentlyStarred);
 
-    try {
-      await starPostToggle(post._id);
-    } catch (error) {
-      setStarredBy(prevStarredBy);
-      setStarred(starred);
+    if (toggleStarPost) {
+      try {
+        await toggleStarPost({ ...post, starredBy: prevStarredBy });
+      } catch (error) {
+        setStarredBy(prevStarredBy);
+        setStarred(isCurrentlyStarred);
+      }
+    } else {
+      try {
+        await starPostToggle(post._id);
+      } catch (error) {
+        setStarredBy(prevStarredBy);
+        setStarred(isCurrentlyStarred);
+      }
     }
   };
 
