@@ -94,11 +94,11 @@ function LoginPage() {
           </Button>
         </form>
 
-        <div className="w-full mt-4 flex gap-3 items-center justify-center theme-text">
+        <div className="w-full mt-6 flex items-center justify-center theme-text text-sm">
           <p>
             Don't have an account?
-            <span className="hover:underline transition-all theme-link">
-              <Link to="/signup"> Sign up</Link>
+            <span className="hover:underline transition-all theme-link pl-1">
+              <Link to="/signup">Sign up</Link>
             </span>
           </p>
         </div>

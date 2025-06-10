@@ -16,6 +16,7 @@ api.interceptors.request.use((config) => {
 
 export const loginUser = (data) => api.post('/user/login', data);
 export const registerUser = (data) => api.post('/user/register', data);
+export const checkUsernameAvailability = (username) => api.get(`/user/checkUsername/${username}`);
 export const getMe = () => api.get('/user/me');
 export const getUserProfile = (userIdentifier) => api.get(`/user/getUserProfile/${userIdentifier}`);
 export const updateAccountDetails = (data) => api.put('/user/updateAccountDetails', data);

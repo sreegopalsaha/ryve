@@ -14,13 +14,17 @@ import {
     getFollowRequests,
     handleFollowRequest,
     getSuggestedUsers,
-    searchUsers
+    searchUsers,
+    checkUsernameAvailability
 } from "../controllers/user.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 const router = express.Router();
 
+// Public routes (no auth required)
+router.get("/checkUsername/:username", checkUsernameAvailability);
 router.post("/register", upload.single("profilePicture"), userRegister);
 router.post("/login", userLogin);
+
 
 router.get("/me", isLoggedIn, getMe);
 

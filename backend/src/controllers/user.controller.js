@@ -25,6 +25,22 @@ const generateAccessAndRefreshTokens = async (userId) => {
     }
 }
 
+const checkUsernameAvailability = asyncHandler(async (req, res) => {
+    const { username } = req.params;
+    if (!username || username.trim().length < 3) {
+        return res.status(400).json(new ApiResponse(400, { available: false }, "Username must be at least 3 characters."));
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        return res.status(400).json(new ApiResponse(400, { available: false }, "Only letters, numbers, and underscores allowed."));
+    }
+    const normalised = username.split(" ").join("_");
+    const existing = await User.findOne({ username: normalised });
+    if (existing) {
+        return res.status(200).json(new ApiResponse(200, { available: false }, `@${normalised} is already taken.`));
+    }
+    return res.status(200).json(new ApiResponse(200, { available: true }, `@${normalised} is available!`));
+});
+
 const userRegister = asyncHandler(async (req, res, next) => {
     const { fullname, username, password, email } = req.body;
     if (!fullname || !username || !password || !email) throw new ApiError(400, "All field are required!");
@@ -46,14 +62,24 @@ const userRegister = asyncHandler(async (req, res, next) => {
     const newUser = await User.create({ fullname, username: newUsername, password, email, profilePicture });
     if (!newUser) throw new ApiError(500, "Error while creating user");
 
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(newUser._id);
+    const createdUser = await User.findById(newUser._id).select("-password -refreshToken");
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
     return res
         .status(201)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
         .json(
             new ApiResponse(201, {
-                ...newUser.toObject(),
-                password: undefined,
-                refreshToken: undefined
-            }, "User created successfully")
+                user: createdUser,
+                accessToken,
+                refreshToken
+            }, "User registered and logged in successfully")
         );
 });
 
@@ -657,5 +683,6 @@ export {
     getFollowRequests,
     handleFollowRequest,
     getSuggestedUsers,
-    searchUsers
-};
+    searchUsers,
+    checkUsernameAvailability
+}
