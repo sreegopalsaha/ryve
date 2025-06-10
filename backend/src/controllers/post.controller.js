@@ -61,23 +61,38 @@ const deletePost = asyncHandler(async (req, res, next) => {
 const getFeedPosts = asyncHandler(async (req, res, next) => {
     const currentUser = req.user;
 
+    // Get all follow records where the current user is the follower
     const followRecords = await Follow.find({
         follower: currentUser._id,
         status: "accepted"
     });
 
     const followeeIds = followRecords.map(record => record.following);
-
     const userIds = [...followeeIds, currentUser._id];
 
+    // Get all posts from followed users and self
     const posts = await Post.find({ author: { $in: userIds } })
         .sort({ createdAt: -1 })
         .populate({
             path: 'author',
-            select: 'fullname username profilePicture'
+            select: 'fullname username profilePicture isPrivateAccount'
         });
 
-    const formattedPosts = posts.map(post => ({
+    // Filter out posts from private accounts that the user doesn't follow
+    const filteredPosts = [];
+    for (const post of posts) {
+        const isOwner = post.author._id.toString() === currentUser._id.toString();
+        if (isOwner || !post.author.isPrivateAccount) {
+            filteredPosts.push(post);
+        } else {
+            const followStatus = await checkFollowStatus(currentUser._id, post.author._id);
+            if (followStatus === "accepted") {
+                filteredPosts.push(post);
+            }
+        }
+    }
+
+    const formattedPosts = filteredPosts.map(post => ({
         content: post.content,
         image: post.image,
         likedBy: post.likedBy,
