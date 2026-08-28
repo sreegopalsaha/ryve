@@ -4,9 +4,11 @@ import Screen from "../components/molecules/Screen";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
 import { useEffect, useState } from "react";
 import { getNotifications, getFollowRequests } from "../services/ApiServices";
+import { useWebSocket } from "../contexts/WebSocketContext";
 
 function Navbar() {
   const { currentUser } = useCurrentUser();
+  const { unreadMessagesCount } = useWebSocket();
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingRequests, setPendingRequests] = useState(0);
 
@@ -57,7 +59,7 @@ function Navbar() {
     { name: "Home", slug: "/", icon: Home },
     { name: "Search", slug: "/search", icon: Search },
     { name: "Notifications", slug: "/notifications", icon: Bell, badge: unreadCount },
-    { name: "Messages", slug: "/messages", icon: MessageCircle },
+    { name: "Messages", slug: "/messages", icon: MessageCircle, badge: unreadMessagesCount },
     { name: "Starred", slug: "/starred", icon: Star },
     ...(currentUser?.isPrivateAccount
       ? [
@@ -77,7 +79,7 @@ function Navbar() {
     { name: "Home", slug: "/", icon: Home },
     { name: "Search", slug: "/search", icon: Search },
     { name: "Notifications", slug: "/notifications", icon: Bell, badge: unreadCount },
-    { name: "Messages", slug: "/messages", icon: MessageCircle },
+    { name: "Messages", slug: "/messages", icon: MessageCircle, badge: unreadMessagesCount },
     {
       name: "Profile",
       slug: `/${currentUser?.username}`,

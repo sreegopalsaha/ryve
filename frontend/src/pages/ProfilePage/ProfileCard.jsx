@@ -176,13 +176,21 @@ function ProfileCard({ user }) {
               Edit
             </Button>
           ) : (
-            <Button
-              loading={followToggleLoading}
-              onClick={handleFollowUnfollow}
-              className="followButtonStyle"
-            >
-              {followButtonName}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                className="px-6 py-2 text-sm rounded-full border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onClick={() => navigate(`/messages?user=${user._id}`)}
+              >
+                Message
+              </Button>
+              <Button
+                loading={followToggleLoading}
+                onClick={handleFollowUnfollow}
+                className="followButtonStyle"
+              >
+                {followButtonName}
+              </Button>
+            </div>
           )}
         </div>
       </Card>

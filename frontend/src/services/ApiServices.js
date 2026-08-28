@@ -44,4 +44,10 @@ export const getNotifications = () => api.get('/notifications');
 export const markNotificationAsRead = (notificationId) => api.patch(`/notifications/${notificationId}/read`);
 export const markAllNotificationsAsRead = () => api.patch('/notifications/read-all');
 
+export const getConversations = () => api.get('/messages/conversations');
+export const getOrCreateConversation = (targetUserId) => api.get(`/messages/conversation/${targetUserId}`);
+export const getMessages = (conversationId) => api.get(`/messages/history/${conversationId}`);
+export const sendMessage = (data) => api.post('/messages/send', data);
+export const markMessagesAsSeen = (conversationId) => api.patch(`/messages/seen/${conversationId}`);
+
 export const getLocation = (latitude, longitude) => axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
