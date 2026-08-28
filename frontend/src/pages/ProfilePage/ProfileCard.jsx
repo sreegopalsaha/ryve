@@ -4,7 +4,10 @@ import { Calendar, MapPin, Menu } from "lucide-react";
 import Button from "../../components/atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
 import { useTheme } from "../../contexts/ThemeContext";
-import { userFollowUnfollow, getFollowRequests } from "../../services/ApiServices";
+import {
+  userFollowUnfollow,
+  getFollowRequests,
+} from "../../services/ApiServices";
 import getFollowButtonName from "../../utils/getFollowButtonName";
 import { useNavigate } from "react-router-dom";
 import ProfileMenu from "./ProfileMenu";
@@ -136,10 +139,12 @@ function ProfileCard({ user }) {
             />
           </div>
           <h1 className="text-xl font-bold mt-2">{user.fullname}</h1>
-          <p className="text-gray-500">@{user.username}</p>
-          <p className="text-sm mt-2 text-center px-4">{user.bio}</p>
+          <p className="text-gray-500 dark:text-gray-400">@{user.username}</p>
+          <p className="text-sm mt-2 text-center px-4 text-gray-500 dark:text-gray-400">
+            {user.bio}
+          </p>
 
-          <div className="flex gap-4 mt-3 text-sm text-gray-500">
+          <div className="flex gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
             {user.location && (
               <div className="flex items-center gap-1">
                 <MapPin size={16} />
@@ -170,7 +175,7 @@ function ProfileCard({ user }) {
           </div>
           {isOwner ? (
             <Button
-              className="px-10 py-2 text-sm rounded-full bg-blue-500 text-white hover:bg-blue-600"
+              className="px-10 py-2 text-sm btn-primary"
               onClick={() => navigate("/edit-profile")}
             >
               Edit

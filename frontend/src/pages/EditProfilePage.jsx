@@ -22,7 +22,7 @@ function Textarea({ label, id, className = "", ...rest }) {
       <textarea
         id={id}
         rows={3}
-        className={`border rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 resize-none theme-input ${className}`}
+        className={`w-full border rounded-xl px-4 py-3 text-sm outline-none resize-none transition-all duration-200 theme-input theme-text ${className}`}
         {...rest}
       />
     </div>
@@ -32,7 +32,7 @@ function Textarea({ label, id, className = "", ...rest }) {
 // Per-field error message
 function FieldError({ message }) {
   if (!message) return null;
-  return <p className="mt-1 text-xs text-red-500">{message}</p>;
+  return <p className="mt-1 text-xs text-red-500 dark:text-red-400">{message}</p>;
 }
 
 // Client-side validation
@@ -272,7 +272,7 @@ function EditProfilePage() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={submitLoading}
-              className="text-xs font-medium px-2.5 py-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60 transition-colors cursor-pointer disabled:opacity-50"
+              className="text-xs font-medium px-2.5 py-1 rounded-md bg-primary-light-accent/10 hover:bg-primary-light-accent/20 text-primary-light-accent dark:bg-primary-dark-accent/20 dark:hover:bg-primary-dark-accent/30 dark:text-primary-dark-accent border border-primary-light-accent/30 dark:border-primary-dark-accent/40 transition-colors cursor-pointer disabled:opacity-50"
             >
               {previewImage ? "Choose different" : "Change Photo"}
             </button>
@@ -402,9 +402,8 @@ function EditProfilePage() {
           <FieldError message={fieldErrors.mood} />
         </div>
 
-        {/* API error banner */}
         {apiError && (
-          <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3">
+          <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3">
             {apiError}
           </p>
         )}

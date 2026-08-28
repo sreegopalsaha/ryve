@@ -29,7 +29,7 @@ const Dropdown = ({ items, isOpen, setIsOpen }) => {
   return (
     <div
       ref={dropdownRef}
-      className="absolute z-40 min-w-[8rem] max-w-[10rem] rounded-lg border bg-white shadow-lg theme-card"
+      className="absolute z-40 min-w-[8rem] max-w-[10rem] rounded-xl border shadow-lg theme-card"
     >
       <div className="flex items-center justify-between p-2 border-b">
         <span className="text-sm font-medium">Options</span>

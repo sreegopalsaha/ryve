@@ -163,7 +163,7 @@ function PostCard({ post, author, setPosts }) {
           />
           <div>
             <p className="font-medium">{author?.fullname}</p>
-            <p className="text-sm text-gray-500">@{author?.username}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">@{author?.username}</p>
           </div>
         </div>
 

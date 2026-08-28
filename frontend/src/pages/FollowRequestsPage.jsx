@@ -78,7 +78,7 @@ function FollowRequestsPage() {
             return (
               <div
                 key={requestId}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div
                   className="flex items-center gap-3 cursor-pointer"
@@ -91,7 +91,7 @@ function FollowRequestsPage() {
                   />
                   <div>
                     <p className="font-medium theme-text">{user.fullname}</p>
-                    <p className="text-sm text-gray-500">@{user.username}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
                   </div>
                 </div>
 
@@ -100,7 +100,7 @@ function FollowRequestsPage() {
                     loading={actionLoading[requestId] === "accept"}
                     disabled={!!actionLoading[requestId]}
                     onClick={() => handleAction(requestId, "accept")}
-                    className="px-4 py-1.5 text-sm font-medium rounded-full bg-blue-500 hover:bg-blue-600 text-white"
+                    className="px-4 py-1.5 text-sm font-medium btn-primary"
                   >
                     Accept
                   </Button>

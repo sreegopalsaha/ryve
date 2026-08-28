@@ -29,7 +29,7 @@ function StarredPostsPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-800">
+      <div className="flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-800">
         <h1 className="text-2xl font-bold tracking-tight theme-text">
           Starred Posts
         </h1>

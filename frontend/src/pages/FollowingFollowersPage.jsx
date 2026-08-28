@@ -34,7 +34,7 @@ function FollowingFollowersPage() {
 
     return (
         <Screen middleScreen>
-            <h1 className="text-xl font-bold">{pageType === "following" ? "Following" : "Followers"}</h1>
+            <h1 className="text-2xl font-bold tracking-tight theme-text">{pageType === "following" ? "Following" : "Followers"}</h1>
             {loading ? <PostsLoading /> : error ? <GlobalError error={error} /> : <UserList userList={userList} />}
         </Screen>
     );

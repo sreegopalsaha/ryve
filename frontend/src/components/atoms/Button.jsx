@@ -1,4 +1,4 @@
-import { LoaderCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import React from "react";
 
 const Button = ({
@@ -11,7 +11,7 @@ const Button = ({
   ...rest
 }) => {
   const buttonClass = `
-    flex items-center justify-center rounded-lg transition-transform duration-200
+    flex items-center justify-center transition-transform duration-200
     ${(disabled || loading) ? "opacity-50 cursor-not-allowed" : ""} 
     ${className}`;
 
@@ -24,7 +24,7 @@ const Button = ({
       {...rest}
     >
       {loading ? (
-        <LoaderCircle className={"text-blue-500 animate-spin"} />
+        <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
         children
       )}

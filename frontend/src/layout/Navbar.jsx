@@ -92,14 +92,14 @@ function Navbar() {
     <>
       {/* Sidebar for Desktop */}
       <Screen className="hidden md:flex w-[25%] flex-col gap-4 fixed top-0 left-0">
-        <h1 className="text-3xl font-bold tracking-tight">Ryve</h1>
+        <h1 className="text-3xl font-bold tracking-tight theme-text">Ryve</h1>
         <nav className="flex flex-col gap-3">
           {sidebarItems.map((item) => (
             <NavLink
               key={item.slug}
               to={item.slug}
               className={({ isActive }) =>
-                `grid grid-cols-[auto,1fr] items-center gap-2 p-3 rounded-lg text-lg font-medium transition-all duration-300 relative
+                `grid grid-cols-[auto,1fr] items-center gap-2 p-3 rounded-xl text-lg font-medium transition-all duration-300 relative
         ${
           isActive
              ? "bg-gray-200 dark:bg-gray-800"
@@ -111,11 +111,6 @@ function Navbar() {
             >
               <div className="relative flex items-center justify-center">
                 <item.icon className="w-6 h-6" />
-                {item.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold px-1">
-                    {item.badge > 99 ? "99+" : item.badge}
-                  </span>
-                )}
               </div>
               <div className="flex items-center justify-between">
                 <span>{item.name}</span>
@@ -143,7 +138,7 @@ function Navbar() {
             <div className="relative flex items-center justify-center">
               <item.icon className="w-6 h-6" />
               {item.badge > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center font-bold px-0.5">
+                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold px-1">
                   {item.badge > 99 ? "99+" : item.badge}
                 </span>
               )}

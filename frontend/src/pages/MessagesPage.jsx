@@ -188,7 +188,7 @@ function MessagesPage() {
             {/* LEFT COLUMN: List */}
             <div className={`w-full md:w-[40%] h-full flex flex-col border-r border-gray-200 dark:border-gray-800 ${isChatActive ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                    <h1 className="text-xl font-bold">Messages</h1>
+                    <h1 className="text-2xl font-bold tracking-tight theme-text">Messages</h1>
                 </div>
 
                 {/* Online Following Carousel */}
@@ -200,8 +200,8 @@ function MessagesPage() {
                                 onClick={() => navigate(`/messages?user=${u._id}`)}
                             >
                                 <div className="relative">
-                                    <img src={u.profilePicture} alt={u.username} className="w-14 h-14 rounded-full object-cover border-2 border-green-500" />
-                                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-black rounded-full"></span>
+                                    <img src={u.profilePicture} alt={u.username} className="w-12 h-12 rounded-full object-cover border-2 border-green-500" />
+                                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-black rounded-full"></span>
                                 </div>
                                 <span className="text-xs truncate w-full text-center">{u.username}</span>
                             </div>
@@ -212,7 +212,7 @@ function MessagesPage() {
                 {/* Conversations List */}
                 <div className="flex-1 overflow-y-auto">
                     {loadingConversations ? (
-                        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-gray-500" /></div>
+                        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-gray-500 w-6 h-6" /></div>
                     ) : conversations.length === 0 ? (
                         <div className="text-center p-8 text-gray-500">No conversations yet.</div>
                     ) : (
@@ -241,7 +241,7 @@ function MessagesPage() {
                                             )}
                                         </div>
                                         <div className="flex justify-between items-center text-sm">
-                                            <p className={`truncate ${conv.unreadCount > 0 ? 'font-bold text-black dark:text-white' : 'text-gray-500'}`}>
+                                            <p className={`truncate ${conv.unreadCount > 0 ? 'font-bold theme-text' : 'text-gray-500'}`}>
                                                 {conv.lastMessage ? conv.lastMessage.content : 'Start a conversation'}
                                             </p>
                                             {conv.unreadCount > 0 && (
@@ -289,7 +289,7 @@ function MessagesPage() {
                         {/* Messages Area */}
                         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {loadingMessages ? (
-                                <div className="flex justify-center p-8"><Loader2 className="animate-spin text-gray-500" /></div>
+                                <div className="flex justify-center p-8"><Loader2 className="animate-spin text-gray-500 w-6 h-6" /></div>
                             ) : messages.length === 0 ? (
                                 <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-2">
                                     <MessageCircle size={48} className="opacity-20" />
@@ -303,7 +303,7 @@ function MessagesPage() {
                                         
                                         return (
                                             <div key={msg._id} className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
-                                                <div className={`max-w-[75%] px-4 py-2 rounded-2xl ${isMine ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-bl-sm'}`}>
+                                                <div className={`max-w-[75%] px-4 py-2 rounded-2xl ${isMine ? 'bg-primary-light-accent dark:bg-primary-dark-accent text-white rounded-br-sm' : 'bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded-bl-sm'}`}>
                                                     <p className="break-words whitespace-pre-wrap text-sm">{msg.content}</p>
                                                 </div>
                                                 {isMine && isLast && msg.seen && (
@@ -325,12 +325,12 @@ function MessagesPage() {
                                     value={messageInput}
                                     onChange={(e) => setMessageInput(e.target.value)}
                                     placeholder="Message..."
-                                    className="flex-1 bg-gray-100 dark:bg-gray-900 border-none rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                                    className="flex-1 theme-input border-none rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-light-accent dark:focus:ring-primary-dark-accent transition-all theme-text"
                                 />
                                 <Button
                                     type="submit"
                                     disabled={!messageInput.trim()}
-                                    className={`p-2.5 rounded-full ${messageInput.trim() ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed'}`}
+                                    className={`p-2.5 rounded-full ${messageInput.trim() ? 'bg-primary-light-accent dark:bg-primary-dark-accent text-white hover:opacity-90' : 'bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed'}`}
                                 >
                                     <Send size={18} />
                                 </Button>
@@ -340,7 +340,7 @@ function MessagesPage() {
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
                         <MessageCircle size={64} className="opacity-20 mb-4" />
-                        <h2 className="text-xl font-bold text-black dark:text-white mb-2">Your Messages</h2>
+                        <h2 className="text-xl font-bold theme-text mb-2">Your Messages</h2>
                         <p className="text-sm">Send private photos and messages to a friend or group.</p>
                     </div>
                 )}

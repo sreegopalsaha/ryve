@@ -135,7 +135,7 @@ const PostFormCard = ({ setPosts }) => {
         <div className="flex-1">
           <form onSubmit={handlePost}>
             <textarea
-              className="w-full h-[2rem] outline-none border-none focus:ring-0 resize-y scrollbar-hidden bg-transparent"
+              className="w-full h-[2rem] outline-none border-none focus:ring-0 resize-y scrollbar-hidden bg-transparent theme-text"
               placeholder="What's new?"
               value={content}
               onChange={handleContentChange}
@@ -159,7 +159,7 @@ const PostFormCard = ({ setPosts }) => {
             )}
 
             {location && (
-              <div className="mt-2 text-sm text-blue-500 flex items-center gap-2">
+              <div className="mt-2 text-sm text-primary-light-accent dark:text-primary-dark-accent flex items-center gap-2">
                 📍 {location}
                 <button
                   onClick={() => setLocation("")}
@@ -173,7 +173,7 @@ const PostFormCard = ({ setPosts }) => {
               <div className="flex items-center gap-2">
                 <label
                   htmlFor="image-upload"
-                  className="p-2 text-blue-500 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer"
+                  className="p-2 text-primary-light-accent dark:text-primary-dark-accent rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20 cursor-pointer"
                 >
                   <ImageIcon className="w-5 h-5" />
                 </label>
@@ -188,7 +188,7 @@ const PostFormCard = ({ setPosts }) => {
                 <Button
                   type="button"
                   onClick={handleLocation}
-                  className="p-2 text-blue-500 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/50"
+                  className="p-2 text-primary-light-accent dark:text-primary-dark-accent rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20"
                 >
                   <MapPin className="w-5 h-5" />
                 </Button>
@@ -196,10 +196,10 @@ const PostFormCard = ({ setPosts }) => {
                 <Button
                   type="button"
                   onClick={handleEnhance}
-                  className={`p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/50 ${
+                  className={`p-2 rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20 ${
                     isEnhancing || !content
-                      ? "text-blue-300 cursor-not-allowed"
-                      : "text-blue-500 cursor-pointer"
+                      ? "opacity-40 cursor-not-allowed"
+                      : "text-primary-light-accent dark:text-primary-dark-accent cursor-pointer"
                   }`}
                 >
                   <Sparkles
@@ -210,14 +210,14 @@ const PostFormCard = ({ setPosts }) => {
 
               <div className="flex items-center space-x-4">
                 {content.length > 0 && (
-                  <div className={`text-sm 'text-gray-500'}`}>
+                  <div className="text-sm text-gray-500">
                     {content.length}
                   </div>
                 )}
                 <Button
                   type="submit"
                   loading={posting}
-                  className={`px-4 py-1.5 rounded-full font-semibold text-white bg-blue-500`}
+                  className={`px-4 py-1.5 font-semibold btn-primary`}
                 >
                   Post
                 </Button>

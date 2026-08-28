@@ -39,11 +39,11 @@ function PostPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      <div className="flex items-center gap-3 pb-2 border-b border-gray-200 dark:border-gray-800">
+      <div className="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-800">
         <Button onClick={() => navigate(-1)} className="hover:bg-gray-200 dark:hover:bg-gray-800 p-1.5 rounded-full">
           <ArrowLeft size={20} />
         </Button>
-        <h1 className="text-xl font-bold tracking-tight theme-text">Post</h1>
+        <h1 className="text-2xl font-bold tracking-tight theme-text">Post</h1>
       </div>
 
       {loading ? (

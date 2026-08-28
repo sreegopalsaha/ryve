@@ -23,18 +23,17 @@ const LandingPage = () => {
       {/* Branding Animation */}
       <BrandingAnimation />
 
-      {/* Buttons */}
       <div className="flex gap-4 mt-8">
         <Button
           onClick={() => navigate("/login")}
-          className="px-6 py-3 text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+          className="px-6 py-3 text-lg font-medium btn-primary transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
         >
           Login &rarr;
         </Button>
 
         <Button
           onClick={() => navigate("/signup")}
-          className="px-6 py-3 text-lg font-medium theme-card theme-text transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
+          className="px-6 py-3 text-lg font-medium btn-primary transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
         >
           Sign Up &rarr;
         </Button>

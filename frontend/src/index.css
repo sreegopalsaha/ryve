@@ -11,7 +11,7 @@
     display: none;
   }
   .followButtonStyle {
-    @apply px-4 py-2 text-sm rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white hover:from-indigo-600 hover:to-violet-600;
+    @apply px-4 py-2 text-sm rounded-full bg-primary-light-accent dark:bg-primary-dark-accent hover:bg-primary-light-accent/90 dark:hover:bg-primary-dark-accent/90 text-white transition-all duration-300;
   }
     .skeleton {
       @apply bg-gray-300 dark:bg-gray-700 rounded-md;
@@ -30,20 +30,27 @@
     .theme-text {
       @apply text-primary-light-text dark:text-primary-dark-text;
     }
-  
-    .theme-input {
+      .theme-input {
       @apply bg-primary-light-input dark:bg-primary-dark-input
              border-primary-light-border dark:border-primary-dark-border
              text-primary-light-text dark:text-primary-dark-text
              focus:ring-primary-light-accent dark:focus:ring-primary-dark-accent
-             outline-none rounded-md
+             outline-none rounded-xl
              transition-all duration-300;
     }
   
     .theme-button {
       @apply bg-primary-light-accent dark:bg-primary-dark-accent
              hover:bg-primary-light-accent/90 dark:hover:bg-primary-dark-accent/90
-             text-white rounded-md
+             text-white rounded-full
+             transition-all duration-300
+             disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .btn-primary {
+      @apply bg-primary-light-accent dark:bg-primary-dark-accent
+             hover:bg-primary-light-accent/90 dark:hover:bg-primary-dark-accent/90
+             text-white rounded-full
              transition-all duration-300
              disabled:opacity-50 disabled:cursor-not-allowed;
     }

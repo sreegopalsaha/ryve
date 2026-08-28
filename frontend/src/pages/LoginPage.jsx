@@ -82,7 +82,7 @@ function LoginPage() {
             </Link>
           </div>
           <div className="h-5 w-full flex items-center">
-            {loginError && <p className="text-red-500">{loginError}</p>}
+            {loginError && <p className="mt-3 text-sm text-red-500 dark:text-red-400 text-center">{loginError}</p>}
           </div>
           <Button
             type="submit"

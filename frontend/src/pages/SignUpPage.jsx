@@ -294,7 +294,7 @@ function SignUpPage() {
 
               {/* Status Message / Error */}
               {errors.username ? (
-                <p className="text-xs text-red-500">{errors.username}</p>
+                <p className="text-xs text-red-500 dark:text-red-400">{errors.username}</p>
               ) : usernameStatus && typeof usernameStatus === "object" ? (
                 <p className={`text-xs ${usernameStatus.available ? "text-green-500" : "text-red-500"}`}>
                   {usernameStatus.message}
@@ -328,7 +328,7 @@ function SignUpPage() {
                   placeholder="John Doe"
                   className={`${inputStyle} ${errors.fullname ? "border-red-500 focus:ring-red-500" : ""}`}
                 />
-                {errors.fullname && <p className="text-xs text-red-500">{errors.fullname}</p>}
+                {errors.fullname && <p className="text-xs text-red-500 dark:text-red-400">{errors.fullname}</p>}
               </div>
 
               <div className="flex flex-col gap-1">
@@ -346,7 +346,7 @@ function SignUpPage() {
                   placeholder="name@example.com"
                   className={`${inputStyle} ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
                 />
-                {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+                {errors.email && <p className="text-xs text-red-500 dark:text-red-400">{errors.email}</p>}
               </div>
             </div>
           )}
@@ -381,7 +381,7 @@ function SignUpPage() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
+                {errors.password && <p className="text-xs text-red-500 dark:text-red-400">{errors.password}</p>}
               </div>
 
               {/* Terms */}
@@ -400,7 +400,7 @@ function SignUpPage() {
           )}
 
           {/* General API error */}
-          {apiError && <p className="mt-3 text-sm text-red-500 text-center">{apiError}</p>}
+          {apiError && <p className="mt-3 text-sm text-red-500 dark:text-red-400 text-center">{apiError}</p>}
 
           {/* Continue / Submit Button */}
           <div className="mt-6">

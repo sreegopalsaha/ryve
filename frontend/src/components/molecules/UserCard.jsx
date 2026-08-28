@@ -42,7 +42,7 @@ function UserCard({ user }) {
 
   return (
     <div
-      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+      className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
       onClick={handleNavigate}
     >
       <div className="flex items-center gap-3">
@@ -53,7 +53,7 @@ function UserCard({ user }) {
         />
         <div>
           <p className="font-medium theme-text">{user.fullname}</p>
-          <p className="text-sm text-gray-500">@{user.username}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
         </div>
       </div>
       {

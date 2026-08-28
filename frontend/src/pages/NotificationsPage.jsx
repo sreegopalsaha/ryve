@@ -86,7 +86,7 @@ function NotificationsPage() {
       case "like":
         return <Heart className="w-4 h-4 text-red-500 fill-red-500" />;
       case "follow":
-        return <UserPlus className="w-4 h-4 text-blue-500" />;
+        return <UserPlus className="w-4 h-4 text-primary-light-accent dark:text-primary-dark-accent" />;
       case "comment":
         return <MessageCircle className="w-4 h-4 text-green-500 fill-green-500/20" />;
       default:
@@ -148,7 +148,7 @@ function NotificationsPage() {
           <Button
             onClick={handleMarkAllAsRead}
             disabled={markingAll}
-            className="flex items-center gap-1.5 text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-medium text-primary-light-accent dark:text-primary-dark-accent hover:opacity-90 transition-colors"
           >
             <CheckCheck size={16} />
             <span>Mark all as read</span>
@@ -159,7 +159,7 @@ function NotificationsPage() {
       {/* Content */}
       {loading ? (
         <div className="flex justify-center items-center py-16">
-          <Loader2 className="animate-spin text-gray-500" size={32} />
+          <Loader2 className="animate-spin text-gray-500 w-6 h-6" />
         </div>
       ) : error ? (
         <GlobalError error={error} />
@@ -182,16 +182,16 @@ function NotificationsPage() {
                 onClick={() => handleNotificationClick(notification)}
                 className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all duration-200 border ${
                   isUnread
-                    ? "bg-blue-50/60 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50 shadow-sm"
+                    ? "bg-primary-light-accent/10 dark:bg-primary-dark-accent/10 border-primary-light-accent/30 dark:border-primary-dark-accent/30 shadow-sm"
                     : "bg-primary-light-card dark:bg-primary-dark-card border-transparent hover:bg-gray-100 dark:hover:bg-gray-800/60"
                 }`}
               >
-                {/* Sender Avatar with type icon badge */}
+                {/* Sender Avatar with type icon badge — ISSUE-11: standardized to w-10 h-10 */}
                 <div className="relative flex-shrink-0">
                   <img
                     src={sender?.profilePicture || "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"}
                     alt={sender?.fullname || "User avatar"}
-                    className="w-11 h-11 rounded-full object-cover"
+                    className="w-10 h-10 rounded-full object-cover"
                   />
                   <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-white dark:bg-gray-900 shadow-sm">
                     {renderIcon(notification.type)}
@@ -224,13 +224,13 @@ function NotificationsPage() {
                   <img
                     src={post.image}
                     alt="Post thumbnail"
-                    className="w-11 h-11 rounded-lg object-cover flex-shrink-0"
+                    className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
                   />
                 )}
 
                 {/* Unread indicator dot */}
                 {isUnread && (
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 flex-shrink-0 mt-2 self-center" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary-light-accent dark:bg-primary-dark-accent flex-shrink-0 mt-2 self-center" />
                 )}
               </div>
             );

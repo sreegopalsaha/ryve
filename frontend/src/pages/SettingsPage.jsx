@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Cookies from "js-cookie";
 import Screen from "../components/molecules/Screen";
+import Toggle from "../components/atoms/Toggle";
 import { useTheme } from "../contexts/ThemeContext";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
 import { updateAccountDetails } from "../services/ApiServices";
@@ -110,19 +111,11 @@ function SettingsPage() {
           sublabel="Toggle between dark and light theme"
           onClick={toggleTheme}
           rightElement={
-            <button
-              onClick={(e) => { e.stopPropagation(); toggleTheme(); }}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 focus:outline-none flex-shrink-0 ${
-                isDark ? "bg-indigo-500" : "bg-gray-300"
-              }`}
-              aria-label="Toggle theme"
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-300 ${
-                  isDark ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
+            <Toggle
+              checked={isDark}
+              onChange={toggleTheme}
+              ariaLabel="Toggle theme"
+            />
           }
         />
         <SettingsRow
@@ -166,7 +159,7 @@ function SettingsPage() {
             }
           />
           {privacyError && (
-            <p className="text-xs text-red-500 px-4 pb-3">{privacyError}</p>
+            <p className="text-xs text-red-500 dark:text-red-400 px-4 pb-3">{privacyError}</p>
           )}
         </div>
       </SettingsSection>

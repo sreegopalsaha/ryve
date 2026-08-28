@@ -2,6 +2,7 @@ import React from "react";
 import { X, Star, Settings, UserPlus, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import Toggle from "../../components/atoms/Toggle";
 
 function ProfileMenu({
   isOpen,
@@ -125,18 +126,8 @@ function ProfileMenu({
               <Sun className="w-5 h-5 flex-shrink-0" />
             )}
             <span>{isDark ? "Dark Mode" : "Light Mode"}</span>
-            <div className="ml-auto flex-shrink-0">
-              <div
-                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-300 ${
-                  isDark ? "bg-indigo-500" : "bg-gray-300"
-                }`}
-              >
-                <span
-                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-300 ${
-                    isDark ? "translate-x-[18px]" : "translate-x-0.5"
-                  }`}
-                />
-              </div>
+            <div className="ml-auto flex-shrink-0 pointer-events-none">
+              <Toggle checked={isDark} ariaLabel="Toggle theme" />
             </div>
           </button>
 
