@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, MessageCircle, UserPlus, Bell, CheckCheck, Loader2 } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  UserPlus,
+  Bell,
+  CheckCheck,
+  Loader2,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Screen from "../components/molecules/Screen";
 import Button from "../components/atoms/Button";
@@ -11,6 +18,7 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from "../services/ApiServices";
+import { PageHeader } from "../components/molecules/Page-Header";
 
 function NotificationsPage() {
   const navigate = useNavigate();
@@ -42,7 +50,7 @@ function NotificationsPage() {
       setMarkingAll(true);
       await markAllNotificationsAsRead();
       setNotifications((prev) =>
-        prev ? prev.map((n) => ({ ...n, read: true })) : []
+        prev ? prev.map((n) => ({ ...n, read: true })) : [],
       );
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
@@ -58,9 +66,9 @@ function NotificationsPage() {
         setNotifications((prev) =>
           prev
             ? prev.map((n) =>
-                n._id === notification._id ? { ...n, read: true } : n
+                n._id === notification._id ? { ...n, read: true } : n,
               )
-            : []
+            : [],
         );
       } catch (err) {
         console.error("Error marking notification as read:", err);
@@ -71,7 +79,10 @@ function NotificationsPage() {
       if (notification.sender?.username) {
         navigate(`/${notification.sender.username}`);
       }
-    } else if (notification.type === "like" || notification.type === "comment") {
+    } else if (
+      notification.type === "like" ||
+      notification.type === "comment"
+    ) {
       const postId = notification.post?._id || notification.post;
       if (postId) {
         navigate(`/post/${postId}`);
@@ -86,16 +97,23 @@ function NotificationsPage() {
       case "like":
         return <Heart className="w-4 h-4 text-red-500 fill-red-500" />;
       case "follow":
-        return <UserPlus className="w-4 h-4 text-primary-light-accent dark:text-primary-dark-accent" />;
+        return (
+          <UserPlus className="w-4 h-4 text-primary-light-accent dark:text-primary-dark-accent" />
+        );
       case "comment":
-        return <MessageCircle className="w-4 h-4 text-green-500 fill-green-500/20" />;
+        return (
+          <MessageCircle className="w-4 h-4 text-green-500 fill-green-500/20" />
+        );
       default:
         return <Bell className="w-4 h-4 text-gray-500" />;
     }
   };
 
   const renderNotificationMessage = (notification) => {
-    const senderName = notification.sender?.fullname || notification.sender?.username || "Someone";
+    const senderName =
+      notification.sender?.fullname ||
+      notification.sender?.username ||
+      "Someone";
 
     switch (notification.type) {
       case "like":
@@ -141,9 +159,7 @@ function NotificationsPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-2xl font-bold tracking-tight theme-text">Notifications</h1>
+      <PageHeader title="Notifications">
         {unreadExists && (
           <Button
             onClick={handleMarkAllAsRead}
@@ -154,8 +170,7 @@ function NotificationsPage() {
             <span>Mark all as read</span>
           </Button>
         )}
-      </div>
-
+      </PageHeader>
       {/* Content */}
       {loading ? (
         <div className="flex justify-center items-center py-16">
@@ -189,7 +204,10 @@ function NotificationsPage() {
                 {/* Sender Avatar with type icon badge — ISSUE-11: standardized to w-10 h-10 */}
                 <div className="relative flex-shrink-0">
                   <img
-                    src={sender?.profilePicture || "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"}
+                    src={
+                      sender?.profilePicture ||
+                      "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"
+                    }
                     alt={sender?.fullname || "User avatar"}
                     className="w-10 h-10 rounded-full object-cover"
                   />
@@ -214,7 +232,9 @@ function NotificationsPage() {
                   {/* Relative timestamp */}
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     {notification.createdAt
-                      ? formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })
+                      ? formatDistanceToNow(new Date(notification.createdAt), {
+                          addSuffix: true,
+                        })
                       : "Just now"}
                   </p>
                 </div>

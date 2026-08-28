@@ -14,6 +14,7 @@ import {
 import Cookies from "js-cookie";
 import Screen from "../components/molecules/Screen";
 import Toggle from "../components/atoms/Toggle";
+import { PageHeader } from "../components/molecules/Page-Header";
 import { useTheme } from "../contexts/ThemeContext";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
 import { updateAccountDetails } from "../services/ApiServices";
@@ -91,9 +92,7 @@ function SettingsPage() {
 
   return (
     <Screen middleScreen className="gap-6">
-      <div className="pb-3 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-2xl font-bold tracking-tight theme-text">Settings</h1>
-      </div>
+      <PageHeader title="Settings" />
 
       <SettingsSection title="Account">
         <SettingsRow

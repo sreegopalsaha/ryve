@@ -7,6 +7,7 @@ import FeedPosts from "./FeedPage/FeedPosts";
 import GlobalError from "../components/errors/GlobalError";
 import NoDataFound from "../components/organisms/NoDataFound";
 import { Star } from "lucide-react";
+import { PageHeader } from "../components/molecules/Page-Header";
 
 function StarredPostsPage() {
   const { currentUser } = useCurrentUser();
@@ -25,15 +26,12 @@ function StarredPostsPage() {
     }
   }, [currentUser, starredPosts, fetchStarredPosts]);
 
-  const isLoading = starredPostsLoading || (starredPosts === null && !starredPostsError);
+  const isLoading =
+    starredPostsLoading || (starredPosts === null && !starredPostsError);
 
   return (
     <Screen middleScreen className="gap-4">
-      <div className="flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-2xl font-bold tracking-tight theme-text">
-          Starred Posts
-        </h1>
-      </div>
+      <PageHeader title="Starred Posts" />
 
       {isLoading ? (
         <PostsLoading />

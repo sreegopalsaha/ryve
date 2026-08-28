@@ -4,6 +4,7 @@ import { getFollowing, getFollowers } from "../services/ApiServices";
 import { PostsLoading } from "../components/loadings/PostLoadingCard";
 import GlobalError from "../components/errors/GlobalError";
 import Screen from "../components/molecules/Screen";
+import { PageHeader } from "../components/molecules/Page-Header";
 import { useParams, useLocation } from "react-router-dom";
 
 function FollowingFollowersPage() {
@@ -33,8 +34,11 @@ function FollowingFollowersPage() {
     }, [pageType, userIdentifier]); 
 
     return (
-        <Screen middleScreen>
-            <h1 className="text-2xl font-bold tracking-tight theme-text">{pageType === "following" ? "Following" : "Followers"}</h1>
+        <Screen middleScreen className="gap-4">
+            <PageHeader
+                title={pageType === "following" ? "Following" : "Followers"}
+                showBack
+            />
             {loading ? <PostsLoading /> : error ? <GlobalError error={error} /> : <UserList userList={userList} />}
         </Screen>
     );

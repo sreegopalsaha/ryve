@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Loader2, Camera } from "lucide-react";
+import { CheckCircle2, Loader2, Camera } from "lucide-react";
 import Screen from "../components/molecules/Screen";
 import Input from "../components/atoms/Input";
 import Button from "../components/atoms/Button";
+import { PageHeader } from "../components/molecules/Page-Header";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
 import { updateAccountDetails, updateProfilePicture } from "../services/ApiServices";
 
@@ -222,19 +223,7 @@ function EditProfilePage() {
 
   return (
     <Screen middleScreen className="gap-6">
-      {/* Page header */}
-      <div className="flex items-center gap-3 pb-3 border-b border-gray-200 dark:border-gray-800">
-        <button
-          onClick={() => navigate("/settings")}
-          className="p-2 -ml-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          aria-label="Go back to settings"
-        >
-          <ArrowLeft className="w-5 h-5 theme-text" />
-        </button>
-        <h1 className="text-2xl font-bold tracking-tight theme-text">
-          Edit Profile
-        </h1>
-      </div>
+      <PageHeader title="Edit Profile" backUrl="/settings" />
 
       {/* Profile picture & info */}
       <div className="flex items-center gap-4 p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">

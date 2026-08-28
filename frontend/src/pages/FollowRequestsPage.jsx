@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { UserPlus } from "lucide-react";
 import Screen from "../components/molecules/Screen";
 import Button from "../components/atoms/Button";
+import { PageHeader } from "../components/molecules/Page-Header";
 import NoDataFound from "../components/organisms/NoDataFound";
 import GlobalError from "../components/errors/GlobalError";
 import { PostsLoading } from "../components/loadings/PostLoadingCard";
@@ -53,10 +54,7 @@ function FollowRequestsPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-2xl font-bold tracking-tight theme-text">Follow Requests</h1>
-      </div>
+      <PageHeader title="Follow Requests" />
 
       {/* Content */}
       {loading ? (
