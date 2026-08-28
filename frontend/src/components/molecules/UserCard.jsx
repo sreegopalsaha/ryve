@@ -6,18 +6,23 @@ import { userFollowUnfollow } from "../../services/ApiServices";
 import {useCurrentUser} from "../../contexts/CurrentUserProvider";
 
 function UserCard({ user }) {
+  if (!user) return null;
+
   const navigate = useNavigate();
-  const [followStatus, setFollowStatus] = useState(user.followStatus || "not-following");
+  const [followStatus, setFollowStatus] = useState(user?.followStatus || "not-following");
   const [followToggleLoading, setFollowToggleLoading] = useState(false);
-  const {currentUser} = useCurrentUser();
-  const isOwnerAccount = currentUser._id === user._id;
+  const { currentUser } = useCurrentUser();
+  const isOwnerAccount = Boolean(currentUser?._id && user?._id && currentUser._id === user._id);
 
   const handleNavigate = () => {
-    navigate(`/${user.username}`);
+    if (user?.username) {
+      navigate(`/${user.username}`);
+    }
   };
 
   const handleFollowToggle = async (e) => {
     e.stopPropagation();
+    if (!user?._id) return;
     const prevFollowStatus = followStatus;
     let newFollowStatus;
     if (followStatus === "accepted" || followStatus === "pending") {
@@ -47,13 +52,13 @@ function UserCard({ user }) {
     >
       <div className="flex items-center gap-3">
         <img
-          src={user.profilePicture || "/default-avatar.png"}
-          alt={user.fullname}
+          src={user?.profilePicture || "/default-avatar.png"}
+          alt={user?.fullname || "User"}
           className="w-12 h-12 rounded-full object-cover"
         />
         <div>
-          <p className="font-medium theme-text">{user.fullname}</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
+          <p className="font-medium theme-text">{user?.fullname}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">@{user?.username}</p>
         </div>
       </div>
       {
