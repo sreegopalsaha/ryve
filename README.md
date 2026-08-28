@@ -1,105 +1,162 @@
-# Ryve Project Progress
+# Ryve
 
-This document tracks the development process of the **Ryve** project—detailing the features implemented so far and outlining the upcoming steps.
+**Ryve** is a social media platform I built using the **MERN stack** during my Diploma in Computer Science. It was one of my first major full-stack projects and my diploma major project.
 
----
+When I was just starting to learn programming, I had the classic idea of building my own social media platform. So when I started learning React, Express.js, Node.js, and MongoDB, I decided to actually build it.
 
-## Table of Contents
-
-- [Current Features](#current-features)
-- [Upcoming Roadmap](#upcoming-roadmap)
-  - [UI Implementation Phase](#ui-implementation-phase)
-  - [Future Backend Enhancements](#future-backend-enhancements)
-- [Work Process](#work-process)
-- [Conclusion](#conclusion)
+I had around **six months** to build the project. I started early, built quite a lot, took a few breaks in between, and then, like every engineer, somehow ended up doing the final push right before the deadline.
 
 ---
 
-## Current Features
+## 👥 The Team
 
-The core backend functionalities implemented so far include:
+Ryve was a team project, and I was leading the team.
 
-- **User Authentication:**
-  - Login
-  - Register
+My teammates were some of my closest friends, but coding wasn't really their thing. They could help here and there, but when it came to actually building the application, I mostly ended up taking the technical side on my own.
 
-- **Post Management:**
-  - Create posts
-  - Delete Posts
-  - Like a Post
+So I took my own path, learned the stack, built the frontend, worked on the backend, handled the database, fixed the bugs, and somehow made the whole thing work.
 
-- **Profile Viewing:**
-  - Users can view each other's profile information, including:
-    - Posts
-    - Followers
-    - Following
+They were there for the moral support.
 
-- **Privacy Controls:**
-  - Users can mark their accounts as private, meaning only approved followers can view their posts.
+I was there for the code. 😭
 
 ---
 
-## Upcoming Roadmap
+## 🚀 Features
 
-### UI Implementation Phase
-
-The next focus is on building the user interface. The planned steps are:
-
-1. **Design Login and Register Page:**
-   - Create a clean and responsive UI for user authentication.
-
-2. **Design Home Feed Page:**
-   - Build the home feed interface where users can view posts from accounts they follow.
-
-3. **Develop Feed Backend:**
-   - Write and integrate the backend logic to power the home feed.
-
-4. **Design User Profile Page:**
-   - Develop the UI to display a user’s profile, their posts, follower/following lists, and other relevant details.
-
-### Future Backend Enhancements
-
-After ensuring that the core features (including liking, following, and profile viewing) are stable and integrated, the next backend enhancements will include:
-
-- **Report Posts:**
-  - Allow users to report inappropriate posts.
-  
-- **Comments:**
-  - Enable commenting on posts.
-  
-- **Notifications:**
-  - Implement a notification system for interactions (e.g., likes, comments, follows).
-  
-- **Messages:**
-  - Develop a messaging feature for user-to-user communication.
+- User authentication
+- User profiles
+- Create and view posts
+- Like posts
+- Follow users
+- Personalized feed
+- Notifications
+- User interactions
+- Direct messaging
 
 ---
 
-## Work Process
+## 🧩 Technical Challenges
 
-Our development process is iterative and divided into the following phases:
+Ryve was one of the first projects where I had to deal with a real frontend and backend working together.
 
-1. **Backend Stabilization:**  
-   - Validate that core functionalities (login, registration, post creation, profile viewing) are working as expected.
+Some of the things I worked through:
 
-2. **UI Development:**  
-   - Transition to designing and developing the user interface for a better user experience.
+- Structuring a React application
+- Building REST APIs with Express.js
+- Connecting the frontend with the backend
+- Designing MongoDB schemas
+- Authentication and protected routes
+- Managing application state
+- Handling user relationships
+- Building reusable components
+- Debugging real-world issues
 
-3. **Integration:**  
-   - Ensure seamless integration between the backend and UI.
-   - Confirm that interactive features such as liking and following are properly reflected in both layers.
-
-4. **Feature Expansion:**  
-   - After integration, expand backend features (e.g., reporting, commenting, notifications, messaging).
-
-5. **Testing & Optimization:**  
-   - Conduct thorough testing at each phase.
-   - Optimize both backend and frontend for performance and user experience.
+A lot of these concepts were completely new to me when I started.
 
 ---
 
-## Conclusion
+## 📚 What I Learned
 
-The Ryve project is currently equipped with essential backend features: user authentication, post creation, and detailed profile viewing with privacy settings. The next phase is to build a user-friendly UI starting with login and registration pages, followed by the home feed and user profile pages. Once the UI is in place and integrated with the current backend, additional features such as post reporting, comments, notifications, and messaging will be implemented.
+Building Ryve helped me understand:
+
+- React and component-based development
+- Express.js and REST APIs
+- MongoDB and data modeling
+- Authentication and authorization
+- State management
+- Project structure and modular code
+- Git and GitHub
+- Debugging real-world problems
+
+More importantly, I learned how to **learn by building**.
 
 ---
+
+## 🤖 AI-Assisted Development
+
+AI became a big part of the final stage of the project.
+
+When the deadline got close, I used tools like **Cursor and Claude** to help with debugging, understanding problems, exploring solutions, and speeding up development.
+
+It wasn't an AI-generated project. I built the application while using AI as a development assistant, especially during the final stretch.
+
+---
+
+## ❤️ Why Ryve Matters
+
+Ryve isn't the most advanced project I've built, and there are definitely things in the code that I would do differently today.
+
+But it was one of the projects where I went from:
+
+> "I want to build a social media platform."
+
+to actually building one.
+
+I started Ryve as a beginner, and I grew alongside the project. That's what makes it special to me.
+
+---
+
+## ⚙️ Tech Stack
+
+**Frontend**
+- React.js
+- TailwindCSS
+- Context API
+- Local State
+
+**Backend**
+- Node.js
+- Express.js
+
+**Database**
+- MongoDB
+
+**Other**
+- REST APIs
+- JWT
+- Git & GitHub
+
+---
+
+## 📂 Project Status
+
+Ryve is currently an **MVP / learning project**.
+
+I'm not actively developing it as a production platform, but the project is open for exploration, learning, and contributions.
+
+---
+
+## 🤝 Contributing
+
+Found something that can be improved?
+
+- Open an issue
+- Fork the repository
+- Make your changes
+- Open a pull request
+
+Whether it's a bug fix, refactoring, UI improvement, or a new feature, contributions are welcome.
+
+---
+
+## 🌐 Live Project
+
+**https://ryve-xyz.vercel.app**
+
+---
+
+## 📬 Contact
+
+- **Email:** sreegopal0101@gmail.com
+- **LinkedIn:** linkedin.com/in/sreegopalsaha
+- **Instagram:** instagram.com/sreegopalsaha
+- **GitHub:** github.com/sreegopalsaha
+
+---
+
+> Built as a beginner.  
+> Learned through the process.  
+> Still one of my favorite projects.
+
+— **Sree Gopal Saha**
