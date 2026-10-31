@@ -29,10 +29,15 @@ function ProfileCardLoading() {
         </div>
       </div>
 
-      <div className="flex justify-between">
-        <div className="w-16 h-6 skeleton" />
-        <div className="w-16 h-6 skeleton" />
-        <div className="w-16 h-6 skeleton" />
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3.5 mt-2">
+        <div className="flex gap-4">
+          <div className="w-20 h-6 skeleton rounded-full" />
+          <div className="w-20 h-6 skeleton rounded-full" />
+        </div>
+        <div className="flex gap-2.5 w-full sm:w-auto">
+          <div className="flex-1 sm:w-24 h-9 skeleton rounded-full" />
+          <div className="flex-1 sm:w-24 h-9 skeleton rounded-full" />
+        </div>
       </div>
     </Card>
   );

@@ -9,10 +9,11 @@ import Cookies from "js-cookie";
 
 function LoginPage() {
   const navigate = useNavigate();
+
   useEffect(() => {
     const token = Cookies.get("token");
     if (token) navigate("/");
-  }, []);
+  }, [navigate]);
 
   const [formData, setFormData] = useState({
     emailOrUsername: "",
@@ -23,6 +24,7 @@ function LoginPage() {
 
   const handleInputChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    if (loginError) setLoginError("");
   };
 
   const handleSubmit = async (e) => {
@@ -46,13 +48,16 @@ function LoginPage() {
   };
 
   return (
-    <Container className="w-full h-full min-w-screen min-h-screen flex items-center justify-center theme-background">
-      <Card className="max-w-md">
-        <h2 className="text-xl font-semibold text-center theme-text">
+    <Container className="w-full min-h-screen flex items-center justify-center theme-background px-4 py-8">
+      <Card className="max-w-md w-full p-6 sm:p-8">
+        <h2 className="text-2xl font-bold text-center theme-text">
           Welcome Back!
         </h2>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Log in to continue to Ryve
+        </p>
 
-        <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <Input
             type="text"
             value={formData.emailOrUsername}
@@ -76,30 +81,28 @@ function LoginPage() {
             className="theme-input"
           />
 
-          <div className="flex justify-end -mt-2">
-            <Link to="/forgot-password" className="text-sm theme-link">
-              Forgot password?
-            </Link>
-          </div>
-          <div className="h-5 w-full flex items-center">
-            {loginError && <p className="mt-3 text-sm text-red-500 dark:text-red-400 text-center">{loginError}</p>}
-          </div>
+          {loginError && (
+            <p className="text-sm text-red-500 dark:text-red-400 text-center bg-red-50 dark:bg-red-950/20 py-2 px-3 rounded-lg">
+              {loginError}
+            </p>
+          )}
+
           <Button
             type="submit"
             disabled={loginLoading}
             loading={loginLoading}
-            className="w-full py-3 theme-button"
+            className="w-full py-3 theme-button font-medium text-sm mt-2"
           >
-            Login
+            Log In
           </Button>
         </form>
 
         <div className="w-full mt-6 flex items-center justify-center theme-text text-sm">
           <p>
-            Don't have an account?
-            <span className="hover:underline transition-all theme-link pl-1">
-              <Link to="/signup">Sign up</Link>
-            </span>
+            Don&apos;t have an account?
+            <Link to="/signup" className="hover:underline font-medium transition-all theme-link pl-1.5">
+              Sign up
+            </Link>
           </p>
         </div>
       </Card>

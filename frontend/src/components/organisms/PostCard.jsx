@@ -8,6 +8,7 @@ import { deletePost, postLikeToggle, starPostToggle } from "../../services/ApiSe
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import Dropdown from "../molecules/Dropdown";
+import { DEFAULT_AVATAR } from "../../utils/constants";
 
 function PostCard({ post, author, setPosts }) {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ function PostCard({ post, author, setPosts }) {
 
     try {
       await postLikeToggle(post._id);
-    } catch (error) {
+    } catch {
       setLikedBy(prevLikedBy);
       setLiked(liked);
     }
@@ -74,14 +75,14 @@ function PostCard({ post, author, setPosts }) {
     if (toggleStarPost) {
       try {
         await toggleStarPost({ ...post, starredBy: prevStarredBy });
-      } catch (error) {
+      } catch {
         setStarredBy(prevStarredBy);
         setStarred(isCurrentlyStarred);
       }
     } else {
       try {
         await starPostToggle(post._id);
-      } catch (error) {
+      } catch {
         setStarredBy(prevStarredBy);
         setStarred(isCurrentlyStarred);
       }
@@ -115,118 +116,149 @@ function PostCard({ post, author, setPosts }) {
     try {
       await deletePost(post._id);
       if (setPosts) {
-        setPosts((prev) => prev.filter((prevPost) => prevPost._id !== post._id));
+        setPosts((prev) => (prev ? prev.filter((prevPost) => prevPost._id !== post._id) : []));
       }
     } catch (error) {
-      console.log("Error while deleting post");
+      console.log("Error while deleting post", error);
     }
   };
 
+  const postAuthor = post.authorDetails || post.author || author;
+  const isPostOwner = Boolean(
+    currentUser?._id &&
+      (postAuthor?._id === currentUser._id || post.author === currentUser._id)
+  );
+
   const dropdownItems = [
+    {
+      label: "Copy Link",
+      onClick: () => {
+        const postUrl = `${window.location.origin}/post/${post._id}`;
+        navigator.clipboard?.writeText(postUrl);
+      },
+      visible: true,
+    },
     {
       label: "Delete",
       onClick: handleDeleteClick,
-      visible: author?._id === currentUser?._id,
-    },
-    {
-      label: "Edit",
-      onClick: () => {
-        navigate(`/post/${post._id}/edit`);
-      },
-      visible: author?._id === currentUser?._id,
+      visible: isPostOwner,
     },
     {
       label: "Report",
       onClick: () => {
-        console.log("Report button clicked");
+        alert("Post reported. Thank you for keeping Ryve safe.");
       },
-      visible: author?._id !== currentUser?._id,
+      visible: !isPostOwner,
     },
   ];
 
-  const postAuthorId = post.author?._id || post.author || author?._id;
-
   return (
-    <Card className="w-full gap-4 max-w-[40rem]">
-      {/* User Info */}
-
-      <div className="cursor-pointer flex items-center justify-between gap-3 theme-text ">
-        {/* left side */}
+    <Card className="w-full gap-3 sm:gap-4 max-w-2xl mx-auto">
+      {/* User Info Header */}
+      <div className="flex items-center justify-between gap-2 theme-text">
+        {/* Left: Author */}
         <div
-          onClick={() => author?.username && navigate(`/${author.username}`)}
-          className="flex cursor-pointer items-center gap-3 w-full"
+          onClick={() => postAuthor?.username && navigate(`/${postAuthor.username}`)}
+          className="flex cursor-pointer items-center gap-3 min-w-0 flex-1"
         >
           <img
-            src={author?.profilePicture || "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"}
-            alt={author?.fullname || "User"}
-            className="w-10 h-10 rounded-full "
+            src={postAuthor?.profilePicture || DEFAULT_AVATAR}
+            alt={postAuthor?.fullname || "User"}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = DEFAULT_AVATAR;
+            }}
+            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
           />
-          <div>
-            <p className="font-medium">{author?.fullname}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">@{author?.username}</p>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium truncate leading-tight hover:underline">
+              {postAuthor?.fullname || "User"}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+              @{postAuthor?.username || "unknown"}
+            </p>
           </div>
         </div>
 
-        {/* right side */}
-        <div className="flex gap-2 w-full justify-end">
+        {/* Right: Timestamp & Dropdown Menu */}
+        <div className="relative flex items-center gap-2 flex-shrink-0">
+          <p className="text-xs text-gray-400 whitespace-nowrap">
+            {post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true }) : ""}
+          </p>
+          <Button
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+            aria-label="Post actions"
+          >
+            <MoreVertical size={18} />
+          </Button>
+
           {isDropdownOpen && (
             <Dropdown
               isOpen={isDropdownOpen}
               setIsOpen={setIsDropdownOpen}
               items={dropdownItems}
-              postAutherId={postAuthorId}
             />
           )}
-
-          <p className="text-xs text-gray-400">
-            {post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true }) : ""}
-          </p>
-          <Button
-            onClick={() => {
-              setIsDropdownOpen(true);
-            }}
-          >
-            <MoreVertical size={20} />
-          </Button>
         </div>
       </div>
 
       {/* Post Content */}
-      <p className="theme-text whitespace-pre-wrap break-words overflow-hidden text-ellipsis">
+      <p
+        className="theme-text whitespace-pre-wrap break-words text-sm sm:text-base leading-relaxed cursor-pointer"
+        onClick={() => navigate(`/post/${post._id}`)}
+      >
         {post.content}
       </p>
 
       {/* Post Image */}
       {post.image && (
-        <img
-          src={post.image}
-          alt="Post"
-          className="rounded-lg w-full max-h-60 object-cover"
-        />
+        <div
+          className="rounded-xl overflow-hidden cursor-pointer border border-gray-100 dark:border-gray-800"
+          onClick={() => navigate(`/post/${post._id}`)}
+        >
+          <img
+            src={post.image}
+            alt="Post content"
+            className="w-full max-h-[30rem] object-cover"
+          />
+        </div>
       )}
 
       {/* Post Actions */}
-      <div className="flex justify-between items-center text-gray-500">
+      <div className="flex justify-between items-center text-gray-500 pt-1 border-t border-gray-100 dark:border-gray-800/60">
         <Button
-          className={`gap-1 ${liked ? "text-red-500" : "hover:text-red-500"}`}
+          className={`gap-1.5 text-xs sm:text-sm p-1.5 rounded-lg transition-colors ${
+            liked ? "text-red-500 font-semibold" : "hover:text-red-500"
+          }`}
           onClick={handleLikeToggle}
         >
           <Heart size={18} className={liked ? "fill-red-500" : ""} />
           <span>{likedBy.length}</span>
         </Button>
 
-        <Button className="gap-1 hover:text-blue-500">
+        <Button
+          className="gap-1.5 text-xs sm:text-sm p-1.5 rounded-lg hover:text-blue-500 transition-colors"
+          onClick={() => navigate(`/post/${post._id}`)}
+        >
           <MessageCircle size={18} />
           <span>{post.comments?.length || 0}</span>
         </Button>
 
-        <Button className="gap-1 hover:text-blue-500" onClick={handleShare}>
+        <Button
+          className="gap-1.5 text-xs sm:text-sm p-1.5 rounded-lg hover:text-blue-500 transition-colors"
+          onClick={handleShare}
+          aria-label="Share post"
+        >
           <Share size={18} />
         </Button>
 
         <Button
-          className={`gap-1 ${starred ? "text-yellow-500" : "hover:text-yellow-500"}`}
+          className={`gap-1.5 text-xs sm:text-sm p-1.5 rounded-lg transition-colors ${
+            starred ? "text-yellow-500 font-semibold" : "hover:text-yellow-500"
+          }`}
           onClick={handleStarToggle}
+          aria-label="Star post"
         >
           <Star size={18} className={starred ? "fill-yellow-500" : ""} />
           <span>{starredBy.length}</span>

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Screen from "../../components/molecules/Screen";
-import {PostsLoading} from "../../components/loadings/PostLoadingCard";
+import { PostsLoading } from "../../components/loadings/PostLoadingCard";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
 import { usePost } from "../../contexts/PostProvider";
 import FeedPosts from "./FeedPosts";
@@ -20,14 +20,19 @@ function FeedPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      <PostFormCard setPosts={setPosts}/>
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
+        <PostFormCard setPosts={setPosts} />
 
-      {
-
-        postsLoading ? <PostsLoading /> : postsError ? <GlobalError error={postsError}/> : <FeedPosts posts={posts || []} setPosts={setPosts}/>
-
-      }
+        {postsLoading ? (
+          <PostsLoading />
+        ) : postsError ? (
+          <GlobalError error={postsError} />
+        ) : (
+          <FeedPosts posts={posts || []} setPosts={setPosts} />
+        )}
+      </div>
     </Screen>
   );
 }
+
 export default FeedPage;

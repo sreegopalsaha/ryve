@@ -12,7 +12,7 @@ function WhoToFollow() {
       try {
         const res = await getSuggestedUsers();
         setUsers(res?.data?.data || []);
-      } catch (error) {
+      } catch {
         // Silently ignore — section just won't render
       } finally {
         setLoading(false);

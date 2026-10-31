@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { X, Star, Settings, UserPlus, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import Toggle from "../../components/atoms/Toggle";
+import { DEFAULT_AVATAR } from "../../utils/constants";
 
 function ProfileMenu({
   isOpen,
@@ -13,6 +14,16 @@ function ProfileMenu({
   toggleTheme,
 }) {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -56,25 +67,26 @@ function ProfileMenu({
           onClick={() => handleMenuNavigate(`/${currentUser?.username}`)}
         >
           <img
-            src={
-              currentUser?.profilePicture ||
-              "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"
-            }
-            alt={currentUser?.fullname}
+            src={currentUser?.profilePicture || DEFAULT_AVATAR}
+            alt={currentUser?.fullname || "User"}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = DEFAULT_AVATAR;
+            }}
             className="w-10 h-10 rounded-full object-cover flex-shrink-0"
           />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold theme-text truncate">
-              {currentUser?.fullname}
+              {currentUser?.fullname || "User"}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              @{currentUser?.username}
+              @{currentUser?.username || "unknown"}
             </p>
           </div>
         </div>
 
         {/* Navigation Options */}
-        <nav className="flex flex-col py-2 flex-1">
+        <nav className="flex flex-col py-2 flex-1 overflow-y-auto">
           <button
             onClick={() => handleMenuNavigate("/starred")}
             className="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors theme-text text-sm font-medium w-full text-left"
@@ -96,7 +108,7 @@ function ProfileMenu({
                   </span>
                 )}
               </div>
-              <span>Follow Requests</span>
+              <span className="truncate">Follow Requests</span>
               {pendingRequests > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold flex-shrink-0">
                   {pendingRequests > 99 ? "99+" : pendingRequests}

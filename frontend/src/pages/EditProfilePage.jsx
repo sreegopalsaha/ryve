@@ -7,6 +7,7 @@ import Button from "../components/atoms/Button";
 import { PageHeader } from "../components/molecules/Page-Header";
 import { useCurrentUser } from "../contexts/CurrentUserProvider";
 import { updateAccountDetails, updateProfilePicture } from "../services/ApiServices";
+import { DEFAULT_AVATAR } from "../utils/constants";
 
 // Inline textarea that mirrors the Input atom styling
 function Textarea({ label, id, className = "", ...rest }) {
@@ -222,21 +223,22 @@ function EditProfilePage() {
   };
 
   return (
-    <Screen middleScreen className="gap-6">
-      <PageHeader title="Edit Profile" backUrl="/settings" />
+    <Screen middleScreen fullWidthMiddle className="gap-6">
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+        <PageHeader title="Edit Profile" backUrl="/settings" />
 
-      {/* Profile picture & info */}
-      <div className="flex items-center gap-4 p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
-        <div className="relative group flex-shrink-0">
-          <img
-            src={
-              previewImage ||
-              currentUser?.profilePicture ||
-              "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"
-            }
-            alt={currentUser?.fullname || "Profile picture"}
-            className="w-16 h-16 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700 transition-all"
-          />
+        {/* Profile picture & info */}
+        <div className="flex items-center gap-4 p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+          <div className="relative group flex-shrink-0">
+            <img
+              src={previewImage || currentUser?.profilePicture || DEFAULT_AVATAR}
+              alt={currentUser?.fullname || "Profile picture"}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = DEFAULT_AVATAR;
+              }}
+              className="w-16 h-16 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700 transition-all"
+            />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -432,6 +434,7 @@ function EditProfilePage() {
           </Button>
         </div>
       </form>
+      </div>
     </Screen>
   );
 }

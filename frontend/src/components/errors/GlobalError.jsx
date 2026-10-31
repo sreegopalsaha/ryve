@@ -20,10 +20,14 @@ const ErrorPage = ({ error }) => {
         Icon = AlertTriangle;
         break;
       case 401:
+        title = "Session Expired";
+        message = "Your session has expired. Please log in again.";
+        Icon = ShieldX;
+        break;
       case 403:
-        title = "Private Account";
+        title = "Access Restricted";
         message =
-          "This is a private account. Follow the user to see their posts and activity.";
+          "This account is private or you do not have permission to view this content.";
         Icon = ShieldX;
         break;
       case 500:
@@ -45,30 +49,30 @@ const ErrorPage = ({ error }) => {
   }
 
   return (
-    <Card className="items-center justify-center flex-1">
-        <div className="w-24 h-24 flex items-center justify-center">
-          <Icon size={48} className="text-gray-500 dark:text-gray-300" />
-        </div>
+    <Card className="items-center justify-center flex-1 max-w-lg mx-auto my-8 p-6 sm:p-8 text-center">
+      <div className="w-20 h-20 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-2">
+        <Icon size={40} className="text-gray-500 dark:text-gray-300" />
+      </div>
 
-        <h1 className="text-xl font-bold mt-4">{title}</h1>
-        <p className="text-center mt-2 max-w-sm">
-          {message}
-        </p>
+      <h1 className="text-xl font-bold mt-3 theme-text">{title}</h1>
+      <p className="text-center mt-2 max-w-sm text-sm text-gray-500 dark:text-gray-400">
+        {message}
+      </p>
 
-        <div className="mt-6 flex gap-4">
-          <Button
-            onClick={() => window.history.back()}
-            className="px-6 py-2 text-sm rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600"
-          >
-            Go Back
-          </Button>
-          <Button
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 text-sm rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600"
-          >
-            Retry
-          </Button>
-        </div>
+      <div className="mt-6 flex gap-3">
+        <Button
+          onClick={() => window.history.back()}
+          className="px-5 py-2 text-sm rounded-full btn-primary"
+        >
+          Go Back
+        </Button>
+        <Button
+          onClick={() => window.location.reload()}
+          className="px-5 py-2 text-sm rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+        >
+          Retry
+        </Button>
+      </div>
     </Card>
   );
 };
