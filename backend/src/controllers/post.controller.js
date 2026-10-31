@@ -13,7 +13,7 @@ import { json } from "express";
 
 const createPost = asyncHandler(async (req, res, next) => {
     const author = req.user?._id;
-    const { content } = req.body;
+    const { content, location } = req.body;
     const imagePath = req.file?.path;
     let image;
 
@@ -21,7 +21,7 @@ const createPost = asyncHandler(async (req, res, next) => {
 
     if (imagePath) image = await uploadOnCloudinay(imagePath);
 
-    const post = new Post({ content, image, author });
+    const post = new Post({ content, image, author, location });
     await post.save();
 
     res.status(201).json(new ApiResponse(201, post, "Post created successfully"));

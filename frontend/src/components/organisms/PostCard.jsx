@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Heart, MessageCircle, MoreVertical, Share, Star } from "lucide-react";
+import { Heart, MessageCircle, MoreVertical, Share, Star, MapPin } from "lucide-react";
 import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useCurrentUser } from "../../contexts/CurrentUserProvider";
@@ -174,9 +174,18 @@ function PostCard({ post, author, setPosts }) {
             <p className="font-medium truncate leading-tight hover:underline">
               {postAuthor?.fullname || "User"}
             </p>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
-              @{postAuthor?.username || "unknown"}
-            </p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+                @{postAuthor?.username || "unknown"}
+              </p>
+              {post.location && (
+                <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 dark:text-gray-500">
+                  <span>•</span>
+                  <MapPin className="w-3 h-3 inline flex-shrink-0" />
+                  <span className="truncate max-w-[120px] sm:max-w-[180px]">{post.location}</span>
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
