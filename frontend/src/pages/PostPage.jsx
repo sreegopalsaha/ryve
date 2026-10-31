@@ -38,21 +38,23 @@ function PostPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      <PageHeader title="Post" showBack />
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
+        <PageHeader title="Post" showBack />
 
-      {loading ? (
-        <PostLoading />
-      ) : error ? (
-        <GlobalError error={error} />
-      ) : post ? (
-        <PostCard post={post} author={author} />
-      ) : (
-        <NoDataFound
-          icon={FileQuestion}
-          message="Post not found"
-          subMessage="This post may have been deleted or is not accessible."
-        />
-      )}
+        {loading ? (
+          <PostLoading />
+        ) : error ? (
+          <GlobalError error={error} />
+        ) : post ? (
+          <PostCard post={post} author={author} />
+        ) : (
+          <NoDataFound
+            icon={FileQuestion}
+            message="Post not found"
+            subMessage="This post may have been deleted or is not accessible."
+          />
+        )}
+      </div>
     </Screen>
   );
 }

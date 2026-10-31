@@ -31,21 +31,23 @@ function StarredPostsPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      <PageHeader title="Starred Posts" />
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
+        <PageHeader title="Starred Posts" />
 
-      {isLoading ? (
-        <PostsLoading />
-      ) : starredPostsError ? (
-        <GlobalError error={starredPostsError} />
-      ) : starredPosts && starredPosts.length > 0 ? (
-        <FeedPosts posts={starredPosts} setPosts={setStarredPosts} />
-      ) : (
-        <NoDataFound
-          icon={Star}
-          message="No starred posts yet"
-          subMessage="Posts you star will appear here for later retrieval."
-        />
-      )}
+        {isLoading ? (
+          <PostsLoading />
+        ) : starredPostsError ? (
+          <GlobalError error={starredPostsError} />
+        ) : starredPosts && starredPosts.length > 0 ? (
+          <FeedPosts posts={starredPosts} setPosts={setStarredPosts} />
+        ) : (
+          <NoDataFound
+            icon={Star}
+            message="No starred posts yet"
+            subMessage="Posts you star will appear here for easy access."
+          />
+        )}
+      </div>
     </Screen>
   );
 }

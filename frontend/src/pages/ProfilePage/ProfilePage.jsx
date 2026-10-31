@@ -99,7 +99,7 @@ function UserProfilePage() {
 
       fetchOtherPosts();
     }
-  }, [userIdentifier, isCurrentUser, currentUser, currentUserPosts, userLoading, userError]);
+  }, [userIdentifier, isCurrentUser, currentUser, currentUserPosts, userLoading, userError, fetchCurrentUserPosts]);
 
   const displayedPosts = isCurrentUser ? currentUserPosts : otherUserPosts;
   const isPostsLoading = isCurrentUser
@@ -110,21 +110,23 @@ function UserProfilePage() {
 
   return (
     <Screen middleScreen className="flex flex-col gap-4">
-      {userLoading ? (
-        <ProfileCardLoading />
-      ) : userError ? (
-        <GlobalError error={userError} />
-      ) : (
-        <ProfileCard user={user} />
-      )}
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
+        {userLoading ? (
+          <ProfileCardLoading />
+        ) : userError ? (
+          <GlobalError error={userError} />
+        ) : (
+          <ProfileCard user={user} />
+        )}
 
-      {isPostsLoading ? (
-        <PostsLoading />
-      ) : postsError ? (
-        <GlobalError error={postsError} />
-      ) : userError ? null : (
-        <UserPosts posts={displayedPosts || []} setPosts={setDisplayedPosts} author={user} />
-      )}
+        {isPostsLoading ? (
+          <PostsLoading />
+        ) : postsError ? (
+          <GlobalError error={postsError} />
+        ) : userError ? null : (
+          <UserPosts posts={displayedPosts || []} setPosts={setDisplayedPosts} author={user} />
+        )}
+      </div>
     </Screen>
   );
 }

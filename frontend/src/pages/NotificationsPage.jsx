@@ -19,6 +19,7 @@ import {
   markAllNotificationsAsRead,
 } from "../services/ApiServices";
 import { PageHeader } from "../components/molecules/Page-Header";
+import { DEFAULT_AVATAR } from "../utils/constants";
 
 function NotificationsPage() {
   const navigate = useNavigate();
@@ -159,104 +160,108 @@ function NotificationsPage() {
 
   return (
     <Screen middleScreen className="gap-4">
-      <PageHeader title="Notifications">
-        {unreadExists && (
-          <Button
-            onClick={handleMarkAllAsRead}
-            disabled={markingAll}
-            className="flex items-center gap-1.5 text-sm font-medium text-primary-light-accent dark:text-primary-dark-accent hover:opacity-90 transition-colors"
-          >
-            <CheckCheck size={16} />
-            <span>Mark all as read</span>
-          </Button>
-        )}
-      </PageHeader>
-      {/* Content */}
-      {loading ? (
-        <div className="flex justify-center items-center py-16">
-          <Loader2 className="animate-spin text-gray-500 w-6 h-6" />
-        </div>
-      ) : error ? (
-        <GlobalError error={error} />
-      ) : !notifications || notifications.length === 0 ? (
-        <NoDataFound
-          message="No notifications yet"
-          subMessage="When someone likes your post, follows you, or comments, you'll see it here."
-          icon={Bell}
-        />
-      ) : (
-        <div className="flex flex-col gap-2">
-          {notifications.map((notification) => {
-            const isUnread = !notification.read;
-            const sender = notification.sender;
-            const post = notification.post;
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
+        <PageHeader title="Notifications">
+          {unreadExists && (
+            <Button
+              onClick={handleMarkAllAsRead}
+              disabled={markingAll}
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-primary-light-accent dark:text-primary-dark-accent hover:opacity-90 transition-opacity flex-shrink-0"
+            >
+              <CheckCheck size={16} />
+              <span>Mark all read</span>
+            </Button>
+          )}
+        </PageHeader>
 
-            return (
-              <div
-                key={notification._id}
-                onClick={() => handleNotificationClick(notification)}
-                className={`flex items-start gap-3 p-4 rounded-xl cursor-pointer transition-all duration-200 border ${
-                  isUnread
-                    ? "bg-primary-light-accent/10 dark:bg-primary-dark-accent/10 border-primary-light-accent/30 dark:border-primary-dark-accent/30 shadow-sm"
-                    : "bg-primary-light-card dark:bg-primary-dark-card border-transparent hover:bg-gray-100 dark:hover:bg-gray-800/60"
-                }`}
-              >
-                {/* Sender Avatar with type icon badge — ISSUE-11: standardized to w-10 h-10 */}
-                <div className="relative flex-shrink-0">
-                  <img
-                    src={
-                      sender?.profilePicture ||
-                      "https://res.cloudinary.com/dmwlciwjk/image/upload/v1739380034/anonymous-user_tb3tgs.jpg"
-                    }
-                    alt={sender?.fullname || "User avatar"}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-white dark:bg-gray-900 shadow-sm">
-                    {renderIcon(notification.type)}
-                  </span>
-                </div>
+        {/* Content */}
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <Loader2 className="animate-spin text-gray-500 w-6 h-6" />
+          </div>
+        ) : error ? (
+          <GlobalError error={error} />
+        ) : !notifications || notifications.length === 0 ? (
+          <NoDataFound
+            message="No notifications yet"
+            subMessage="When someone likes your post, follows you, or comments, you'll see it here."
+            icon={Bell}
+          />
+        ) : (
+          <div className="flex flex-col gap-2">
+            {notifications.map((notification) => {
+              const isUnread = !notification.read;
+              const sender = notification.sender;
+              const post = notification.post;
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm theme-text leading-snug">
-                    {renderNotificationMessage(notification)}
-                  </p>
+              return (
+                <div
+                  key={notification._id}
+                  onClick={() => handleNotificationClick(notification)}
+                  className={`flex items-start gap-3 p-3.5 sm:p-4 rounded-xl cursor-pointer transition-all duration-200 border ${
+                    isUnread
+                      ? "bg-primary-light-accent/10 dark:bg-primary-dark-accent/10 border-primary-light-accent/30 dark:border-primary-dark-accent/30 shadow-sm"
+                      : "bg-primary-light-card dark:bg-primary-dark-card border-gray-100 dark:border-gray-800/60 hover:bg-gray-100/70 dark:hover:bg-gray-800/60"
+                  }`}
+                >
+                  {/* Sender Avatar with type icon badge */}
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={sender?.profilePicture || DEFAULT_AVATAR}
+                      alt={sender?.fullname || "User avatar"}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = DEFAULT_AVATAR;
+                      }}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <span className="absolute -bottom-1 -right-1 p-1 rounded-full bg-white dark:bg-gray-900 shadow-sm border border-gray-100 dark:border-gray-800">
+                      {renderIcon(notification.type)}
+                    </span>
+                  </div>
 
-                  {/* Post preview if available */}
-                  {post?.content && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1 italic">
-                      "{post.content}"
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm theme-text leading-snug">
+                      {renderNotificationMessage(notification)}
                     </p>
+
+                    {/* Post preview if available */}
+                    {post?.content && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1 italic">
+                        &ldquo;{post.content}&rdquo;
+                      </p>
+                    )}
+
+                    {/* Relative timestamp */}
+                    <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
+                      {notification.createdAt
+                        ? formatDistanceToNow(new Date(notification.createdAt), {
+                            addSuffix: true,
+                          })
+                        : "Just now"}
+                    </p>
+                  </div>
+
+                  {/* Post thumbnail preview if available */}
+                  {post?.image && (
+                    <img
+                      src={post.image}
+                      alt="Post thumbnail"
+                      className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                    />
                   )}
 
-                  {/* Relative timestamp */}
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    {notification.createdAt
-                      ? formatDistanceToNow(new Date(notification.createdAt), {
-                          addSuffix: true,
-                        })
-                      : "Just now"}
-                  </p>
+                  {/* Unread indicator dot */}
+                  {isUnread && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary-light-accent dark:bg-primary-dark-accent flex-shrink-0 mt-2 self-center" />
+                  )}
                 </div>
-
-                {/* Post thumbnail preview if available */}
-                {post?.image && (
-                  <img
-                    src={post.image}
-                    alt="Post thumbnail"
-                    className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                  />
-                )}
-
-                {/* Unread indicator dot */}
-                {isUnread && (
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary-light-accent dark:bg-primary-dark-accent flex-shrink-0 mt-2 self-center" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </Screen>
   );
 }

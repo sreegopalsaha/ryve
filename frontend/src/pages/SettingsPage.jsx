@@ -91,8 +91,9 @@ function SettingsPage() {
   };
 
   return (
-    <Screen middleScreen className="gap-6">
-      <PageHeader title="Settings" />
+    <Screen middleScreen fullWidthMiddle className="gap-6">
+      <div className="w-full max-w-2xl mx-auto flex flex-col gap-6">
+        <PageHeader title="Settings" />
 
       <SettingsSection title="Account">
         <SettingsRow
@@ -183,6 +184,7 @@ function SettingsPage() {
           <span className="text-sm font-medium text-red-500">Log Out</span>
         </button>
       </SettingsSection>
+      </div>
     </Screen>
   );
 }
