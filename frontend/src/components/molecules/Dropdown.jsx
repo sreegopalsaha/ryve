@@ -21,7 +21,11 @@ const Dropdown = ({ items, isOpen, setIsOpen }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, [handleClickOutside]);
 
   if (!isOpen) return null;
@@ -29,12 +33,16 @@ const Dropdown = ({ items, isOpen, setIsOpen }) => {
   return (
     <div
       ref={dropdownRef}
-      className="absolute z-40 min-w-[8rem] max-w-[10rem] rounded-xl border shadow-lg theme-card"
+      className="absolute right-0 top-9 z-50 min-w-[8.5rem] rounded-xl border border-gray-200 dark:border-gray-700 shadow-xl theme-card overflow-hidden"
     >
-      <div className="flex items-center justify-between p-2 border-b">
-        <span className="text-sm font-medium">Options</span>
-        <button onClick={() => setIsOpen(false)} aria-label="Close menu">
-          <X className="h-4 w-4" />
+      <div className="flex items-center justify-between p-2 border-b border-gray-100 dark:border-gray-800">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">Options</span>
+        <button
+          onClick={() => setIsOpen(false)}
+          aria-label="Close menu"
+          className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500"
+        >
+          <X className="h-3.5 w-3.5" />
         </button>
       </div>
       <ul className="p-1">
@@ -45,7 +53,11 @@ const Dropdown = ({ items, isOpen, setIsOpen }) => {
                 item.onClick();
                 setIsOpen(false);
               }}
-              className="w-full px-2 py-1.5 text-sm hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg"
+              className={`w-full px-3 py-1.5 text-xs sm:text-sm text-left justify-start rounded-lg transition-colors ${
+                item.label === "Delete"
+                  ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-800"
+              }`}
             >
               {item.icon && <span className="mr-2">{item.icon}</span>}
               {item.label}

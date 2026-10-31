@@ -5,13 +5,13 @@ import { useCurrentUser } from "../../contexts/CurrentUserProvider";
 import Card from "../molecules/Card";
 import Button from "../atoms/Button";
 import { useNavigate } from "react-router-dom";
+import { DEFAULT_AVATAR } from "../../utils/constants";
 
 const PostFormCard = ({ setPosts }) => {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [posting, setPosting] = useState(false);
-  const [postingError, setPostingError] = useState(null);
   const [location, setLocation] = useState("");
   const [isEnhancing, setIsEnhancing] = useState(false);
   const { currentUser } = useCurrentUser();
@@ -52,13 +52,13 @@ const PostFormCard = ({ setPosts }) => {
             const res = await getLocation(latitude, longitude);
             const data = res.data;
             const locationName =
-              data.address.city ||
-              data.address.town ||
-              data.address.village ||
-              data.address.state ||
-              data.address.region ||
-              data.address.province ||
-              data.address.country ||
+              data?.address?.city ||
+              data?.address?.town ||
+              data?.address?.village ||
+              data?.address?.state ||
+              data?.address?.region ||
+              data?.address?.province ||
+              data?.address?.country ||
               "Unknown Location";
             setLocation(locationName);
           } catch (error) {
@@ -73,15 +73,18 @@ const PostFormCard = ({ setPosts }) => {
       );
     }
   };
+
   const handleEnhance = async () => {
-    if (!content) return;
+    if (!content.trim()) return;
     setIsEnhancing(true);
     try {
-      const res = await enhanceContent({content});
+      const res = await enhanceContent({ content });
       const newContent = res.data?.data;
-      setContent(newContent);
+      if (newContent) {
+        setContent(newContent);
+      }
     } catch (error) {
-      console.log("Error enhancing content:");
+      console.log("Error enhancing content:", error);
     } finally {
       setIsEnhancing(false);
     }
@@ -97,45 +100,56 @@ const PostFormCard = ({ setPosts }) => {
 
   const handlePost = async (e) => {
     e.preventDefault();
-    if (!content && !image) return;
+    if (!content.trim() && !image) return;
     setPosting(true);
 
     const formData = new FormData();
-    if (content) formData.append("content", content);
+    if (content.trim()) formData.append("content", content.trim());
     if (image) formData.append("image", image);
     if (location) formData.append("location", location);
 
     try {
       const res = await createPost(formData);
       let newPost = res.data?.data;
-      newPost.author = currentUser;
-      setPosts((prev) => [newPost, ...prev]);
+      if (newPost) {
+        newPost.author = currentUser;
+        if (setPosts) {
+          setPosts((prev) => [newPost, ...(prev || [])]);
+        }
+      }
       setContent("");
       setImage(null);
       setPreviewImage(null);
       setLocation("");
     } catch (error) {
-      setPostingError(error);
-      console.log("Error while posting", error);
+      console.log("Error while posting:", error);
     } finally {
       setPosting(false);
     }
   };
 
   return (
-    <Card className="max-w-[40rem]">
-      <div className="flex space-x-4">
+    <Card className="w-full max-w-2xl mx-auto p-4 sm:p-5">
+      <div className="flex gap-3 sm:gap-4">
         <img
-          src={currentUser?.profilePicture}
-          alt={`${currentUser?.fullname}'s profile`}
-          className={`w-10 h-10 rounded-full ${!currentUser ? "hidden" : ""}`}
-          onClick={()=>{navigate(`/${currentUser?.username}`)}}
+          src={currentUser?.profilePicture || DEFAULT_AVATAR}
+          alt={currentUser?.fullname ? `${currentUser.fullname}'s avatar` : "Profile"}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = DEFAULT_AVATAR;
+          }}
+          className={`w-10 h-10 rounded-full object-cover flex-shrink-0 cursor-pointer ${
+            !currentUser ? "hidden" : ""
+          }`}
+          onClick={() => {
+            if (currentUser?.username) navigate(`/${currentUser.username}`);
+          }}
         />
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <form onSubmit={handlePost}>
             <textarea
-              className="w-full h-[2rem] outline-none border-none focus:ring-0 resize-y scrollbar-hidden bg-transparent theme-text"
+              className="w-full min-h-[4rem] outline-none border-none focus:ring-0 resize-y scrollbar-hidden bg-transparent theme-text text-sm sm:text-base placeholder-gray-400"
               placeholder="What's new?"
               value={content}
               onChange={handleContentChange}
@@ -151,29 +165,32 @@ const PostFormCard = ({ setPosts }) => {
                 <Button
                   type="button"
                   onClick={removeImage}
-                  className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white hover:bg-black/70"
+                  className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-black/80 transition-colors"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
             )}
 
             {location && (
-              <div className="mt-2 text-sm text-primary-light-accent dark:text-primary-dark-accent flex items-center gap-2">
-                📍 {location}
+              <div className="mt-2 text-xs sm:text-sm text-primary-light-accent dark:text-primary-dark-accent flex items-center gap-1.5">
+                <span>📍 {location}</span>
                 <button
+                  type="button"
                   onClick={() => setLocation("")}
-                  className="theme-text hover:text-red-700 text-xs font-bold"
+                  className="theme-text hover:text-red-500 text-xs font-bold px-1"
                 >
                   ✕
                 </button>
               </div>
             )}
-            <div className="mt-2 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+
+            <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-800/60 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <label
                   htmlFor="image-upload"
-                  className="p-2 text-primary-light-accent dark:text-primary-dark-accent rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20 cursor-pointer"
+                  className="p-2 text-primary-light-accent dark:text-primary-dark-accent rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20 cursor-pointer transition-colors"
+                  title="Attach image"
                 >
                   <ImageIcon className="w-5 h-5" />
                 </label>
@@ -188,7 +205,8 @@ const PostFormCard = ({ setPosts }) => {
                 <Button
                   type="button"
                   onClick={handleLocation}
-                  className="p-2 text-primary-light-accent dark:text-primary-dark-accent rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20"
+                  className="p-2 text-primary-light-accent dark:text-primary-dark-accent rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20 transition-colors"
+                  title="Add location"
                 >
                   <MapPin className="w-5 h-5" />
                 </Button>
@@ -196,11 +214,13 @@ const PostFormCard = ({ setPosts }) => {
                 <Button
                   type="button"
                   onClick={handleEnhance}
-                  className={`p-2 rounded-full hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20 ${
-                    isEnhancing || !content
-                      ? "opacity-40 cursor-not-allowed"
-                      : "text-primary-light-accent dark:text-primary-dark-accent cursor-pointer"
+                  disabled={isEnhancing || !content.trim()}
+                  className={`p-2 rounded-full transition-colors ${
+                    isEnhancing || !content.trim()
+                      ? "opacity-40 cursor-not-allowed text-gray-400"
+                      : "text-primary-light-accent dark:text-primary-dark-accent hover:bg-primary-light-accent/10 dark:hover:bg-primary-dark-accent/20 cursor-pointer"
                   }`}
+                  title="Enhance with AI"
                 >
                   <Sparkles
                     className={`w-5 h-5 ${isEnhancing ? "animate-spin" : ""}`}
@@ -208,16 +228,17 @@ const PostFormCard = ({ setPosts }) => {
                 </Button>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-3">
                 {content.length > 0 && (
-                  <div className="text-sm text-gray-500">
+                  <span className="text-xs text-gray-400">
                     {content.length}
-                  </div>
+                  </span>
                 )}
                 <Button
                   type="submit"
                   loading={posting}
-                  className={`px-4 py-1.5 font-semibold btn-primary`}
+                  disabled={posting || (!content.trim() && !image)}
+                  className="px-4 sm:px-5 py-1.5 text-xs sm:text-sm font-semibold btn-primary"
                 >
                   Post
                 </Button>
